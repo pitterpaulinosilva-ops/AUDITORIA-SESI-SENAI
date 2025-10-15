@@ -41,15 +41,20 @@ export const AuditReports: React.FC = () => {
     generateTrendData(dateRange);
   }, [dateRange, generateDashboardMetrics, generateTrendData]);
 
-  const handleExport = async (format: 'pdf' | 'excel' | 'csv', options: any) => {
+  const handleExport = async (format: 'pdf' | 'excel', options: any) => {
     await exportReport({
-      type: 'audits',
       format,
-      dateRange,
-      filters,
       includeCharts: options.includeCharts,
-      includeRawData: options.includeRawData,
+      includeDetails: options.includeRawData,
       fileName: options.fileName || `audit-report-${new Date().toISOString().split('T')[0]}`
+    }, {
+      periodStart: dateRange.startDate,
+      periodEnd: dateRange.endDate,
+      auditType: 'all',
+      auditorName: '',
+      auditedSector: '',
+      auditedProcess: '',
+      auditedSubprocess: ''
     });
   };
 
@@ -62,9 +67,9 @@ export const AuditReports: React.FC = () => {
       new Date(audit.scheduledDate) >= dateRange.startDate &&
       new Date(audit.scheduledDate) <= dateRange.endDate;
 
-    const matchesStatus = !filters.status || audit.status === filters.status;
-    const matchesType = !filters.type || audit.type === filters.type;
-    const matchesAuditor = !filters.auditorId || audit.auditorId === filters.auditorId;
+    const matchesStatus = !filters.status || filters.status.includes(audit.status);
+    const matchesType = !filters.type || filters.type.includes(audit.type);
+    const matchesAuditor = !filters.auditor || filters.auditor.includes(audit.auditorId);
 
     return matchesSearch && matchesDateRange && matchesStatus && matchesType && matchesAuditor;
   });
@@ -84,10 +89,10 @@ export const AuditReports: React.FC = () => {
     : 0;
 
   const averageTime = filteredAudits
-    .filter(audit => audit.status === 'completed' && audit.executionNotes?.length)
+    .filter(audit => audit.status === 'completed' && audit.executionNote)
     .reduce((acc, audit) => {
       const startDate = new Date(audit.scheduledDate);
-      const endDate = audit.executionNotes?.[0]?.endDate ? new Date(audit.executionNotes[0].endDate) : new Date();
+      const endDate = audit.executionNote?.executedAt ? new Date(audit.executionNote.executedAt) : new Date();
       const diffDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
       return acc + diffDays;
     }, 0) / Math.max(auditsByStatus.completed || 1, 1);
@@ -151,7 +156,7 @@ export const AuditReports: React.FC = () => {
           title="Em Andamento"
           value={auditsByStatus.in_progress || 0}
           icon={AlertTriangle}
-          color="yellow"
+          color="orange"
         />
       </div>
 
@@ -164,6 +169,7 @@ export const AuditReports: React.FC = () => {
             <TrendingUp className="h-5 w-5 text-gray-400" />
           </div>
           <TrendChart
+            title="Auditorias por Status"
             data={{
               labels: Object.keys(auditsByStatus).map(status => {
                 const statusMap: Record<string, string> = {
@@ -193,6 +199,7 @@ export const AuditReports: React.FC = () => {
             <Building className="h-5 w-5 text-gray-400" />
           </div>
           <TrendChart
+            title="Auditorias por Tipo"
             data={{
               labels: Object.keys(auditsByType).map(type => {
                 const typeMap: Record<string, string> = {
@@ -223,6 +230,7 @@ export const AuditReports: React.FC = () => {
           <Calendar className="h-5 w-5 text-gray-400" />
         </div>
         <TrendChart
+          title="Tendência de Auditorias"
           data={trendData.audits}
           type="line"
           height={400}
@@ -267,23 +275,22 @@ export const AuditReports: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                      {audit.type === 'internal' ? 'Interna' : 
-                       audit.type === 'external' ? 'Externa' : 
-                       audit.type === 'compliance' ? 'Conformidade' :
-                       audit.type === 'quality' ? 'Qualidade' : 'Segurança'}
+                      {audit.type === 'interna' ? 'Interna' :
+                       audit.type === 'externa' ? 'Externa' :
+                       audit.type === 'fornecedor' ? 'Fornecedor' : 'Interna'}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                       audit.status === 'completed' ? 'bg-green-100 text-green-800' :
                       audit.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
-                      audit.status === 'scheduled' ? 'bg-yellow-100 text-yellow-800' :
+                      audit.status === 'planned' ? 'bg-yellow-100 text-yellow-800' :
                       audit.status === 'cancelled' ? 'bg-red-100 text-red-800' :
                       'bg-gray-100 text-gray-800'
                     }`}>
                       {audit.status === 'completed' ? 'Concluída' :
                        audit.status === 'in_progress' ? 'Em Andamento' :
-                       audit.status === 'scheduled' ? 'Agendada' :
+                       audit.status === 'planned' ? 'Agendada' :
                        audit.status === 'cancelled' ? 'Cancelada' : 'Rascunho'}
                     </span>
                   </td>

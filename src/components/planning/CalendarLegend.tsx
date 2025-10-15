@@ -5,8 +5,7 @@ export function CalendarLegend() {
   const legendItems = [
     { status: AuditStatus.COMPLETED, label: 'Concluídas' },
     { status: AuditStatus.IN_PROGRESS, label: 'Em Andamento' },
-    { status: AuditStatus.SCHEDULED, label: 'Programadas' },
-    { status: AuditStatus.DRAFT, label: 'Rascunhos' }
+    { status: AuditStatus.PLANNED, label: 'Planejadas' }
   ];
 
   return (

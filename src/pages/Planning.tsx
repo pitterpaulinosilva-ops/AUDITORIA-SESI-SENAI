@@ -79,7 +79,7 @@ export function Planning() {
     const total = filteredAudits.length;
     const completed = filteredAudits.filter(a => a.status === AuditStatus.COMPLETED).length;
     const inProgress = filteredAudits.filter(a => a.status === AuditStatus.IN_PROGRESS).length;
-    const scheduled = filteredAudits.filter(a => a.status === AuditStatus.SCHEDULED).length;
+    const scheduled = filteredAudits.filter(a => a.status === AuditStatus.PLANNED).length;
 
     return { total, completed, inProgress, scheduled };
   }, [filteredAudits]);
@@ -102,8 +102,9 @@ export function Planning() {
       title: `Nova Auditoria - ${format(selectedDate, 'dd/MM/yyyy', { locale: ptBR })}`,
       description: '',
       type: 'INTERNAL' as any,
-      scheduledDate: selectedDate.toISOString(),
+      scheduledDate: selectedDate,
       auditor: 'Usuário Atual',
+      auditorId: 'user-1',
       estimatedDuration: 4
     });
 

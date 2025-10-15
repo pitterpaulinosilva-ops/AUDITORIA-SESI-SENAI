@@ -142,7 +142,8 @@ export const useReportsStore = create<ReportsState>()(
           // Métricas de performance
           const auditorsProductivity = get().calculateAuditorMetrics(filteredAudits, dateRange);
           const departmentCompliance = get().calculateDepartmentMetrics(filteredAudits, filteredNCs, dateRange);
-          const trendsData = get().generateTrendData(filteredAudits, filteredNCs, dateRange);
+          get().generateTrendData(dateRange);
+          const trendsData: TrendData[] = [];
           
           const averageAuditTime = filteredAudits
             .filter(a => a.actualStartDate && a.actualEndDate)
@@ -478,7 +479,8 @@ export const useReportsStore = create<ReportsState>()(
               subprocess: 'Inspeção Final',
               startDate: new Date('2024-01-15'),
               endDate: new Date('2024-01-20'),
-              status: 'completed'
+              status: AuditStatus.COMPLETED,
+              nonConformitiesCount: 2
             },
             {
               id: '2',
@@ -490,7 +492,8 @@ export const useReportsStore = create<ReportsState>()(
               subprocess: 'Documentação',
               startDate: new Date('2024-01-10'),
               endDate: new Date('2024-01-12'),
-              status: 'completed'
+              status: AuditStatus.COMPLETED,
+              nonConformitiesCount: 1
             },
             {
               id: '3',
@@ -502,12 +505,13 @@ export const useReportsStore = create<ReportsState>()(
               subprocess: 'Qualificação',
               startDate: new Date('2024-01-25'),
               endDate: new Date('2024-01-26'),
-              status: 'in_progress'
+              status: AuditStatus.IN_PROGRESS,
+              nonConformitiesCount: 0
             }
           ];
 
           // Aplicar filtros
-          let filteredAudits = mockAudits.filter(audit => {
+          const filteredAudits = mockAudits.filter(audit => {
             // Filtro por período
             const auditInPeriod = audit.startDate >= filters.periodStart && 
                                  audit.endDate <= filters.periodEnd;

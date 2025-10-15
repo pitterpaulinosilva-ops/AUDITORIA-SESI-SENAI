@@ -8,7 +8,7 @@ interface ReportFiltersProps {
   onDateRangeChange?: (dateRange: DateRange) => void;
   searchTerm?: string;
   onSearchChange?: (search: string) => void;
-  onExport?: (format: 'pdf' | 'excel' | 'csv', options: any) => void;
+  onExport?: (format: 'pdf' | 'excel', options: any) => void;
   showAdvancedFilters?: boolean;
   filters?: any;
   onFiltersChange?: (filters: any) => void;
@@ -33,7 +33,7 @@ export const ReportFilters: React.FC<ReportFiltersProps> = ({
   const [showFilters, setShowFilters] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [exportOptions, setExportOptions] = useState({
-    format: 'pdf' as 'pdf' | 'excel' | 'csv',
+    format: 'pdf' as 'pdf' | 'excel',
     includeCharts: true,
     includeRawData: false,
     fileName: ''
@@ -193,7 +193,7 @@ export const ReportFilters: React.FC<ReportFiltersProps> = ({
                 </label>
                 <select
                   value={exportOptions.format}
-                  onChange={(e) => setExportOptions(prev => ({ ...prev, format: e.target.value as 'pdf' | 'excel' | 'csv' }))}
+                  onChange={(e) => setExportOptions(prev => ({ ...prev, format: e.target.value as 'pdf' | 'excel' }))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="pdf">PDF</option>

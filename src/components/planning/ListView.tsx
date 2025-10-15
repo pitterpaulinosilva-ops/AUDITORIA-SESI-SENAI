@@ -44,10 +44,8 @@ export function ListView({ audits, onAuditClick }: ListViewProps) {
         return 'bg-green-100 text-green-800 border-green-200';
       case AuditStatus.IN_PROGRESS:
         return 'bg-blue-100 text-blue-800 border-blue-200';
-      case AuditStatus.SCHEDULED:
+      case AuditStatus.PLANNED:
         return 'bg-orange-100 text-orange-800 border-orange-200';
-      case AuditStatus.DRAFT:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
@@ -59,10 +57,8 @@ export function ListView({ audits, onAuditClick }: ListViewProps) {
         return 'Concluída';
       case AuditStatus.IN_PROGRESS:
         return 'Em Andamento';
-      case AuditStatus.SCHEDULED:
-        return 'Programada';
-      case AuditStatus.DRAFT:
-        return 'Rascunho';
+      case AuditStatus.PLANNED:
+        return 'Planejada';
       default:
         return status;
     }
@@ -137,15 +133,15 @@ export function ListView({ audits, onAuditClick }: ListViewProps) {
                       )}
                     </div>
                     
-                    {audit.progress !== undefined && (
+                    {audit.score !== null && audit.score !== undefined && (
                       <div className="ml-4 text-right">
                         <div className="text-sm font-medium text-gray-900">
-                          {Math.round(audit.progress)}%
+                          {Math.round(audit.score)}%
                         </div>
                         <div className="w-16 bg-gray-200 rounded-full h-2 mt-1">
                           <div
                             className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                            style={{ width: `${audit.progress}%` }}
+                            style={{ width: `${audit.score}%` }}
                           />
                         </div>
                       </div>

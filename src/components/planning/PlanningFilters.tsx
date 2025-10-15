@@ -131,8 +131,7 @@ export function PlanningFilters({ onFiltersChange, onSearchChange }: PlanningFil
                     <span className="ml-2 text-sm text-gray-600">
                       {status === AuditStatus.COMPLETED && 'Concluídas'}
                       {status === AuditStatus.IN_PROGRESS && 'Em Andamento'}
-                      {status === AuditStatus.SCHEDULED && 'Programadas'}
-                      {status === AuditStatus.DRAFT && 'Rascunhos'}
+                      {status === AuditStatus.PLANNED && 'Programadas'}
                     </span>
                   </label>
                 ))}
@@ -161,8 +160,7 @@ export function PlanningFilters({ onFiltersChange, onSearchChange }: PlanningFil
                     <span className="ml-2 text-sm text-gray-600">
                       {type === AuditType.INTERNAL && 'Interna'}
                       {type === AuditType.EXTERNAL && 'Externa'}
-                      {type === AuditType.REGULATORY && 'Regulatória'}
-                      {type === AuditType.FOLLOW_UP && 'Follow-up'}
+                      {type === AuditType.SUPPLIER && 'Fornecedor'}
                     </span>
                   </label>
                 ))}

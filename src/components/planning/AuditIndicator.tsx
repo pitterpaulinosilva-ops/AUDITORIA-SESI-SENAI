@@ -21,17 +21,11 @@ export function AuditIndicator({ status, count = 1, size = 'md' }: AuditIndicato
           textColor: 'text-blue-700',
           label: 'Em Andamento'
         };
-      case AuditStatus.SCHEDULED:
+      case AuditStatus.PLANNED:
         return {
           color: 'bg-orange-500',
           textColor: 'text-orange-700',
-          label: 'Programada'
-        };
-      case AuditStatus.DRAFT:
-        return {
-          color: 'bg-gray-400',
-          textColor: 'text-gray-600',
-          label: 'Rascunho'
+          label: 'Planejada'
         };
       default:
         return {

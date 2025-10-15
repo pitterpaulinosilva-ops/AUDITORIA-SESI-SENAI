@@ -31,7 +31,7 @@ ChartJS.register(
 );
 
 interface TrendChartProps {
-  data: TrendData[] | any[];
+  data: any; // Permite qualquer tipo de dados para compatibilidade com Chart.js
   type: 'line' | 'bar' | 'pie' | 'doughnut' | 'radar' | 'area';
   title: string;
   height?: number;

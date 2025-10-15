@@ -20,7 +20,9 @@ export type AuditTypeValue = 'interna' | 'externa' | 'fornecedor';
 export enum NonConformityStatus {
   OPEN = 'open',
   IN_TREATMENT = 'in_treatment',
+  IN_PROGRESS = 'in_progress',
   CLOSED = 'closed',
+  RESOLVED = 'resolved',
   CANCELLED = 'cancelled'
 }
 
@@ -83,32 +85,38 @@ export interface ExecutionNote {
 export interface Audit extends BaseEntity {
   title: string;
   description: string;
-  type: AuditTypeValue;
+  type: AuditType;
   status: AuditStatus;
-  plannedStartDate: Date;
-  plannedEndDate: Date;
+  plannedStartDate?: Date; // Opcional para compatibilidade
+  plannedEndDate?: Date; // Opcional para compatibilidade
   actualStartDate?: Date;
   actualEndDate?: Date;
   auditorId: string;
-  auditor: string; // Nome do auditor para exibição
-  auditeeIds: string[];
-  checklistId: string;
-  department: string;
-  sector: string; // Setor da auditoria
-  location: string;
-  scheduledDate: Date; // Data agendada para compatibilidade
-  objectives: string[];
-  scope: string;
-  criteria: string[];
-  score?: number;
-  maxScore?: number;
-  nonConformities: NonConformity[];
-  evidences: Evidence[];
+  auditor?: string; // Opcional para compatibilidade
+  auditee?: string; // Opcional para compatibilidade
+  auditeeIds?: string[]; // Opcional para compatibilidade
+  auditeeId?: string; // Para compatibilidade com código existente
+  checklistId?: string; // Para compatibilidade com store
+  department?: string; // Opcional para compatibilidade
+  sector?: string; // Setor da auditoria - opcional
+  location?: string; // Para compatibilidade com store
+  scheduledDate?: Date; // Para compatibilidade com store
+  completedDate?: Date; // Data de conclusão
+  objectives?: string[]; // Opcional para compatibilidade
+  scope?: string; // Opcional para compatibilidade
+  criteria?: string[]; // Opcional para compatibilidade
+  score?: number; // Para compatibilidade com store
+  maxScore?: number; // Para compatibilidade com store
+  duration?: number; // Duração em horas
+  findings?: string; // Achados da auditoria
+  nonConformities: NonConformity[] | string[]; // Permite array de strings para compatibilidade
+  evidences: Evidence[] | string[]; // Permite array de strings para compatibilidade
   observations?: string;
-  recommendations?: string[];
-  reportGenerated: boolean;
+  recommendations?: string[] | string; // Permite string ou array de strings
+  reportGenerated?: boolean; // Para compatibilidade com store
   reportPath?: string;
   executionNote?: ExecutionNote; // Nota sobre execução em relação ao prazo
+  estimatedDuration?: number; // Duração estimada para compatibilidade
 }
 
 // Interface para categoria de checklist
@@ -181,19 +189,36 @@ export interface NonConformity extends BaseEntity {
   category: string;
   location: string;
   identifiedBy: string;
+  identifiedAt?: Date; // Data de identificação para compatibilidade
   responsibleId?: string;
   dueDate?: Date;
   rootCause?: string;
   correctiveActions: CorrectiveAction[];
-  evidences: Evidence[];
+  evidences: Evidence[] | string[]; // Permite array de strings para compatibilidade
   impact: string;
   riskLevel: string;
   cost?: number;
   closedAt?: Date;
   closedBy?: string;
-  verificationRequired: boolean;
+  verificationRequired?: boolean;
   verifiedAt?: Date;
   verifiedBy?: string;
+  isPatientRelated?: boolean; // Para compatibilidade com código existente
+}
+
+// Enums para ação corretiva
+export enum CorrectiveActionStatus {
+  PLANNED = 'planned',
+  IN_PROGRESS = 'in_progress',
+  COMPLETED = 'completed',
+  OVERDUE = 'overdue'
+}
+
+export enum Priority {
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high',
+  CRITICAL = 'critical'
 }
 
 // Interface para ação corretiva
@@ -203,13 +228,17 @@ export interface CorrectiveAction {
   description: string;
   responsibleId: string;
   dueDate: Date;
-  status: 'planned' | 'in_progress' | 'completed' | 'overdue';
-  completedAt?: Date;
-  evidences: Evidence[];
+  status: CorrectiveActionStatus | NonConformityStatus; // Permite ambos os tipos para compatibilidade
+  priority?: Priority; // Opcional para compatibilidade
   cost?: number;
-  effectiveness?: 'low' | 'medium' | 'high';
+  completedAt?: Date;
+  verificationRequired?: boolean; // Opcional para compatibilidade
   verifiedAt?: Date;
   verifiedBy?: string;
+  effectiveness?: string;
+  evidences?: Evidence[]; // Opcional para compatibilidade
+  createdAt?: Date; // Para compatibilidade com código existente
+  updatedAt?: Date; // Para compatibilidade com código existente
 }
 
 // Interface para evidência
@@ -226,15 +255,18 @@ export interface Evidence extends BaseEntity {
   mimeType?: string;
   thumbnailPath?: string;
   capturedBy: string;
+  capturedAt?: Date; // Data de captura para compatibilidade
   location?: string;
   coordinates?: {
     latitude: number;
     longitude: number;
   };
   tags: string[];
-  isCompressed: boolean;
+  isCompressed?: boolean;
   originalSize?: number;
   compressedSize?: number;
+  url?: string; // URL para compatibilidade com código existente
+  content?: string; // Conteúdo para evidências do tipo nota
 }
 
 // Interface para planejamento de recursos
@@ -635,6 +667,14 @@ export interface CustomReportBuilder {
     field: string;
     direction: 'asc' | 'desc';
   }[];
+}
+
+// Interface para componentes de gráfico
+export interface TrendChartProps {
+  title: string;
+  data: any; // Permite qualquer tipo de dados para compatibilidade com Chart.js
+  height?: number;
+  type?: 'line' | 'bar' | 'area';
 }
 
 // Tipos para localStorage

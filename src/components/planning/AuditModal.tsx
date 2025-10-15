@@ -40,10 +40,8 @@ export function AuditModal({
         return 'Concluída';
       case AuditStatus.IN_PROGRESS:
         return 'Em Andamento';
-      case AuditStatus.SCHEDULED:
-        return 'Programada';
-      case AuditStatus.DRAFT:
-        return 'Rascunho';
+      case AuditStatus.PLANNED:
+        return 'Planejada';
       default:
         return 'Indefinido';
     }

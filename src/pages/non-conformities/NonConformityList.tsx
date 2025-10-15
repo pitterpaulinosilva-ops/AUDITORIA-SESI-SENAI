@@ -31,7 +31,7 @@ export function NonConformityList() {
     
     audits.forEach(audit => {
       if (audit.nonConformities && audit.nonConformities.length > 0) {
-        let filteredNCs = audit.nonConformities
+        let filteredNCs: NonConformity[] = audit.nonConformities.filter((nc): nc is NonConformity => typeof nc !== 'string')
 
         // Aplicar filtros
         if (searchTerm) {

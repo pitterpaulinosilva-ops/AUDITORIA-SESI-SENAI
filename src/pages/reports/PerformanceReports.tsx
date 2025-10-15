@@ -20,7 +20,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export const PerformanceReports: React.FC = () => {
-  const { audits, users } = useAuditProStore();
+  const { audits } = useAuditProStore();
   const { 
     dashboardMetrics, 
     generateDashboardMetrics,
@@ -45,12 +45,19 @@ export const PerformanceReports: React.FC = () => {
   });
 
   // Métricas por auditor
+  // Mock users data for now
+  const users = [
+    { id: 'auditor-1', name: 'Dr. João Silva' },
+    { id: 'auditor-2', name: 'Dra. Maria Santos' },
+    { id: 'auditor-3', name: 'Dr. Roberto Alves' }
+  ];
+
   const auditorMetrics = users.map(user => {
     const userAudits = filteredAudits.filter(audit => audit.auditorId === user.id);
     const completedAudits = userAudits.filter(audit => audit.status === 'completed');
     const totalTime = completedAudits.reduce((acc, audit) => {
-      if (audit.completedAt && audit.createdAt) {
-        return acc + (new Date(audit.completedAt).getTime() - new Date(audit.createdAt).getTime());
+      if (audit.completedDate && audit.createdAt) {
+        return acc + (new Date(audit.completedDate).getTime() - new Date(audit.createdAt).getTime());
       }
       return acc;
     }, 0);
@@ -58,7 +65,7 @@ export const PerformanceReports: React.FC = () => {
     return {
       id: user.id,
       name: user.name,
-      email: user.email,
+      email: `${user.name.toLowerCase().replace(' ', '.')}@hospital.com`,
       totalAudits: userAudits.length,
       completedAudits: completedAudits.length,
       completionRate: userAudits.length > 0 ? (completedAudits.length / userAudits.length) * 100 : 0,
@@ -128,22 +135,20 @@ export const PerformanceReports: React.FC = () => {
       )
     : null;
 
-  const handleExport = (format: 'pdf' | 'excel' | 'csv', options: any) => {
+  const handleExport = (format: 'pdf' | 'excel', options: any) => {
     exportReport({
-      type: 'performance',
       format,
-      dateRange,
-      data: {
-        auditorMetrics,
-        departmentMetrics,
-        kpis: {
-          totalAuditors,
-          avgCompletionRate,
-          avgTimeHours,
-          topPerformer: topPerformer?.name
-        }
-      },
-      ...options
+      includeCharts: options.includeCharts,
+      includeDetails: options.includeRawData,
+      fileName: options.fileName || `performance-report-${new Date().toISOString().split('T')[0]}`
+    }, {
+      periodStart: dateRange.startDate,
+      periodEnd: dateRange.endDate,
+      auditType: 'all',
+      auditorName: '',
+      auditedSector: '',
+      auditedProcess: '',
+      auditedSubprocess: ''
     });
   };
 
@@ -186,7 +191,7 @@ export const PerformanceReports: React.FC = () => {
           icon={Target}
           color="green"
           trend="up"
-          trendValue="2.3%"
+          trendValue={2.3}
         />
         <MetricCard
           title="Tempo Médio"
@@ -195,7 +200,7 @@ export const PerformanceReports: React.FC = () => {
           icon={Clock}
           color="orange"
           trend="down"
-          trendValue="0.5h"
+          trendValue={0.5}
         />
         <MetricCard
           title="Melhor Performer"
@@ -213,6 +218,7 @@ export const PerformanceReports: React.FC = () => {
             Performance ao Longo do Tempo
           </h3>
           <TrendChart
+            title="Performance ao Longo do Tempo"
             data={performanceOverTimeData}
             type="line"
             height={300}
@@ -224,6 +230,7 @@ export const PerformanceReports: React.FC = () => {
             Comparação entre Auditores
           </h3>
           <TrendChart
+            title="Comparação entre Auditores"
             data={auditorComparisonData}
             type="bar"
             height={300}
@@ -237,6 +244,7 @@ export const PerformanceReports: React.FC = () => {
           Eficiência por Departamento
         </h3>
         <TrendChart
+          title="Eficiência por Departamento"
           data={efficiencyByDepartmentData}
           type="bar"
           height={300}

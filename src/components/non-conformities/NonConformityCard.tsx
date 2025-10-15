@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Calendar, MapPin, User, AlertTriangle, Clock, FileText, Camera, ExternalLink } from 'lucide-react'
-import { NonConformity, Audit } from '../../types'
+import { NonConformity, Audit, Evidence } from '../../types'
 import { SeverityBadge } from './SeverityBadge'
 import { EPAButton } from './EPAButton'
 import { EvidenceGallery } from './EvidenceGallery'
@@ -238,9 +238,9 @@ export function NonConformityCard({ nonConformity }: NonConformityCardProps) {
       </div>
 
       {/* Evidence Gallery Modal */}
-      {showEvidences && nonConformity.evidences && (
+      {showEvidences && nonConformity.evidences && Array.isArray(nonConformity.evidences) && (
         <EvidenceGallery
-          evidences={nonConformity.evidences}
+          evidences={nonConformity.evidences.filter((evidence): evidence is Evidence => typeof evidence !== 'string')}
           onClose={() => setShowEvidences(false)}
           title={`Evidências - ${nonConformity.title}`}
         />

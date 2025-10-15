@@ -41,15 +41,20 @@ export const NonConformityReports: React.FC = () => {
     generateTrendData(dateRange);
   }, [dateRange, generateDashboardMetrics, generateTrendData]);
 
-  const handleExport = async (format: 'pdf' | 'excel' | 'csv', options: any) => {
+  const handleExport = async (format: 'pdf' | 'excel', options: any) => {
     await exportReport({
-      type: 'non-conformities',
       format,
-      dateRange,
-      filters,
       includeCharts: options.includeCharts,
-      includeRawData: options.includeRawData,
+      includeDetails: options.includeRawData,
       fileName: options.fileName || `non-conformity-report-${new Date().toISOString().split('T')[0]}`
+    }, {
+      periodStart: dateRange.startDate,
+      periodEnd: dateRange.endDate,
+      auditType: 'all',
+      auditorName: '',
+      auditedSector: '',
+      auditedProcess: '',
+      auditedSubprocess: ''
     });
   };
 
@@ -59,17 +64,18 @@ export const NonConformityReports: React.FC = () => {
       nc.description.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesDateRange = 
-      new Date(nc.identifiedDate) >= dateRange.startDate &&
-      new Date(nc.identifiedDate) <= dateRange.endDate;
+      new Date(nc.identifiedAt || nc.createdAt) >= dateRange.startDate &&
+        new Date(nc.identifiedAt || nc.createdAt) <= dateRange.endDate;
 
-    const matchesStatus = !filters.status || nc.status === filters.status;
-    const matchesSeverity = !filters.severity || nc.severity === filters.severity;
+    const matchesStatus = !filters.status || filters.status.includes(nc.status);
+    const matchesSeverity = !filters.severity || filters.severity.includes((nc.severity || 'low') as any);
 
     return matchesSearch && matchesDateRange && matchesStatus && matchesSeverity;
   });
 
   const nonConformitiesBySeverity = filteredNonConformities.reduce((acc, nc) => {
-    acc[nc.severity] = (acc[nc.severity] || 0) + 1;
+    const severityKey = nc.severity || 'low';
+    acc[severityKey] = (acc[severityKey] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
@@ -83,10 +89,10 @@ export const NonConformityReports: React.FC = () => {
     : 0;
 
   const averageResolutionTime = filteredNonConformities
-    .filter(nc => nc.status === 'resolved' && nc.resolvedDate)
+    .filter(nc => nc.status === 'resolved' && nc.closedAt)
     .reduce((acc, nc) => {
-      const identifiedDate = new Date(nc.identifiedDate);
-      const resolvedDate = new Date(nc.resolvedDate!);
+      const identifiedDate = new Date(nc.identifiedAt || nc.createdAt);
+      const resolvedDate = new Date(nc.closedAt || new Date());
       const diffDays = Math.ceil((resolvedDate.getTime() - identifiedDate.getTime()) / (1000 * 60 * 60 * 24));
       return acc + diffDays;
     }, 0) / Math.max(nonConformitiesByStatus.resolved || 1, 1);
@@ -179,7 +185,7 @@ export const NonConformityReports: React.FC = () => {
           title="Em Aberto"
           value={(nonConformitiesByStatus.open || 0) + (nonConformitiesByStatus.in_progress || 0)}
           icon={TrendingDown}
-          color="yellow"
+          color="orange"
         />
       </div>
 
@@ -192,6 +198,7 @@ export const NonConformityReports: React.FC = () => {
             <AlertTriangle className="h-5 w-5 text-gray-400" />
           </div>
           <TrendChart
+            title="Não Conformidades por Severidade"
             data={{
               labels: Object.keys(nonConformitiesBySeverity).map(severity => {
                 const severityMap: Record<string, string> = {
@@ -220,6 +227,7 @@ export const NonConformityReports: React.FC = () => {
             <Calendar className="h-5 w-5 text-gray-400" />
           </div>
           <TrendChart
+            title="Timeline de Não Conformidades"
             data={timelineData}
             type="bar"
             height={300}
@@ -261,6 +269,7 @@ export const NonConformityReports: React.FC = () => {
             <Target className="h-5 w-5 text-gray-400" />
           </div>
           <TrendChart
+            title="Status das Não Conformidades"
             data={{
               labels: Object.keys(nonConformitiesByStatus).map(status => {
                 const statusMap: Record<string, string> = {
@@ -288,6 +297,7 @@ export const NonConformityReports: React.FC = () => {
             <BarChart3 className="h-5 w-5 text-gray-400" />
           </div>
           <TrendChart
+            title="Tendência Mensal"
             data={trendData.nonConformitiesBySeverity}
             type="line"
             height={300}
@@ -333,14 +343,14 @@ export const NonConformityReports: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      nc.severity === 'critical' ? 'bg-red-100 text-red-800' :
-                      nc.severity === 'high' ? 'bg-orange-100 text-orange-800' :
-                      nc.severity === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-green-100 text-green-800'
-                    }`}>
-                      {nc.severity === 'critical' ? 'Crítica' :
-                       nc.severity === 'high' ? 'Alta' :
-                       nc.severity === 'medium' ? 'Média' : 'Baixa'}
+                      (nc.severity || 'low') === 'critical' ? 'bg-red-100 text-red-800' :
+                (nc.severity || 'low') === 'high' ? 'bg-orange-100 text-orange-800' :
+                (nc.severity || 'low') === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                'bg-green-100 text-green-800'
+              }`}>
+                {(nc.severity || 'low') === 'critical' ? 'Crítica' :
+                (nc.severity || 'low') === 'high' ? 'Alta' :
+                (nc.severity || 'low') === 'medium' ? 'Média' : 'Baixa'}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -356,7 +366,7 @@ export const NonConformityReports: React.FC = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {new Date(nc.identifiedDate).toLocaleDateString('pt-BR')}
+                    {new Date(nc.identifiedAt || nc.createdAt).toLocaleDateString('pt-BR')}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {nc.dueDate ? new Date(nc.dueDate).toLocaleDateString('pt-BR') : '-'}

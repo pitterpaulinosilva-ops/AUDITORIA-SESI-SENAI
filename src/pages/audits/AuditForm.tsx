@@ -87,7 +87,9 @@ export function AuditForm() {
     try {
       const auditData = {
         title: data.title,
-        type: data.type,
+        type: data.type === 'interna' ? AuditType.INTERNAL : 
+              data.type === 'externa' ? AuditType.EXTERNAL : 
+              AuditType.SUPPLIER,
         sector: data.sector,
         auditor: data.auditor,
         scheduledDate: new Date(data.scheduledDate),

@@ -183,13 +183,20 @@ export const CustomReports: React.FC = () => {
     setPreviewData(mockData);
   };
 
-  const handleExport = (template: CustomReportTemplate, format: 'pdf' | 'excel' | 'csv', options: any) => {
+  const handleExport = (template: CustomReportTemplate, format: 'pdf' | 'excel', options: any) => {
     exportReport({
-      type: 'custom',
       format,
-      templateId: template.id,
-      data: mockData,
-      ...options
+      includeCharts: options.includeCharts,
+      includeDetails: options.includeRawData,
+      fileName: options.fileName || `custom-report-${new Date().toISOString().split('T')[0]}`
+    }, {
+      periodStart: new Date(),
+      periodEnd: new Date(),
+      auditType: 'all',
+      auditorName: '',
+      auditedSector: '',
+      auditedProcess: '',
+      auditedSubprocess: ''
     });
   };
 
@@ -219,6 +226,7 @@ export const CustomReports: React.FC = () => {
             <h3 className="text-sm font-medium text-gray-900 mb-4">{component.title}</h3>
             <div className="h-48">
               <TrendChart
+                title={component.title}
                 data={data as any}
                 type={component.config.type}
                 height={180}

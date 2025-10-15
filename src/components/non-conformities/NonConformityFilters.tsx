@@ -253,7 +253,10 @@ export function NonConformityFilters({ filters, onFiltersChange, audits }: NonCo
               {filters.dateRange.start && filters.dateRange.end && ' - '}
               {filters.dateRange.end && new Date(filters.dateRange.end).toLocaleDateString('pt-BR')}
               <button
-                onClick={() => handleDateRangeChange('start', '') || handleDateRangeChange('end', '')}
+                onClick={() => {
+                  handleDateRangeChange('start', '');
+                  handleDateRangeChange('end', '');
+                }}
                 className="hover:text-blue-900"
               >
                 <X className="w-3 h-3" />

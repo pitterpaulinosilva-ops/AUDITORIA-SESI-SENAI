@@ -235,7 +235,7 @@ export const ScheduleReports: React.FC = () => {
     const now = new Date();
     const [hours, minutes] = (time || '09:00').split(':').map(Number);
     
-    let nextRun = new Date(now);
+    const nextRun = new Date(now);
     nextRun.setHours(hours, minutes, 0, 0);
 
     switch (frequency) {

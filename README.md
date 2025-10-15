@@ -1,57 +1,98 @@
-# React + TypeScript + Vite
+# AuditPro - Sistema de Auditoria Interna
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Sistema completo de gestão de auditorias internas desenvolvido com React, TypeScript e Vite.
 
-Currently, two official plugins are available:
+## 🚀 Funcionalidades
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Dashboard**: Visão geral com KPIs e métricas principais
+- **Planejamento**: Calendário de auditorias e gestão de cronogramas
+- **Checklists**: Criação e execução de checklists de auditoria
+- **Não Conformidades**: Registro e acompanhamento de não conformidades
+- **Relatórios**: Geração de relatórios detalhados e dashboards
+- **Configurações**: Personalização do sistema
 
-## Expanding the ESLint configuration
+## 🛠️ Tecnologias
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Frontend**: React 18 + TypeScript
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS
+- **State Management**: Zustand
+- **Forms**: React Hook Form + Zod
+- **Charts**: Chart.js + Recharts
+- **Icons**: Lucide React
+- **Date Handling**: date-fns
+- **PDF Generation**: jsPDF
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## 📦 Instalação
+
+```bash
+# Clone o repositório
+git clone <repository-url>
+
+# Instale as dependências
+npm install
+
+# Execute em modo de desenvolvimento
+npm run dev
+
+# Build para produção
+npm run build
+
+# Preview da build de produção
+npm run preview
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🧪 Scripts Disponíveis
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- `npm run dev` - Inicia o servidor de desenvolvimento
+- `npm run build` - Gera build de produção
+- `npm run preview` - Preview da build de produção
+- `npm run lint` - Executa o linter
+- `npm run check` - Verifica tipos TypeScript
 
-export default tseslint.config({
-  extends: [
-    // other configs...
-    // Enable lint rules for React
-    reactX.configs['recommended-typescript'],
-    // Enable lint rules for React DOM
-    reactDom.configs.recommended,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## 📁 Estrutura do Projeto
+
 ```
+src/
+├── components/          # Componentes reutilizáveis
+│   ├── checklist/      # Componentes de checklist
+│   ├── non-conformities/ # Componentes de não conformidades
+│   ├── planning/       # Componentes de planejamento
+│   ├── reports/        # Componentes de relatórios
+│   └── settings/       # Componentes de configurações
+├── pages/              # Páginas da aplicação
+├── store/              # Estado global (Zustand)
+├── types/              # Definições de tipos TypeScript
+├── hooks/              # Custom hooks
+└── lib/                # Utilitários
+```
+
+## 🔧 Configuração
+
+O projeto está configurado com:
+
+- **TypeScript**: Configuração otimizada para React
+- **ESLint**: Regras de qualidade de código
+- **Tailwind CSS**: Framework de CSS utilitário
+- **Vite**: Build tool moderno e rápido
+
+## 📊 Status do Projeto
+
+✅ **Build**: Compilação sem erros  
+✅ **TypeScript**: Verificação de tipos OK  
+✅ **Dependências**: Todas atualizadas e seguras  
+✅ **Navegação**: Rotas funcionando corretamente  
+✅ **Componentes**: Renderização sem erros  
+✅ **Funcionalidades**: Módulos principais testados  
+
+## 🚀 Deploy
+
+O projeto está pronto para deploy em:
+
+- **Vercel**: Deploy automático via GitHub
+- **Netlify**: Build e deploy contínuo
+- **GitHub Pages**: Hospedagem estática
+
+## 📝 Licença
+
+Este projeto está sob a licença MIT.

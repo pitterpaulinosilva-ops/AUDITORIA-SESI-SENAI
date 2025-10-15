@@ -43,7 +43,7 @@ interface AuditProState {
   
   // Ações para auditorias
   addAudit: (audit: Omit<Audit, 'id' | 'createdAt' | 'updatedAt'>) => void;
-  createAudit: (audit: Omit<Audit, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'score' | 'nonConformities' | 'evidences' | 'reportGenerated'>) => void;
+  createAudit: (audit: Omit<Audit, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'score' | 'nonConformities' | 'evidences' | 'reportGenerated'>) => Audit;
   updateAudit: (id: string, updates: Partial<Audit>) => void;
   deleteAudit: (id: string) => void;
   getAuditById: (id: string) => Audit | undefined;
@@ -537,6 +537,8 @@ export const useAuditProStore = create<AuditProState>()(
         set((state) => ({
           audits: [...state.audits, newAudit]
         }));
+        
+        return newAudit;
       },
       
       addAudit: (auditData) => {
