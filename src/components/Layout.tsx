@@ -25,20 +25,20 @@ export function Layout({ children }: LayoutProps) {
   const { sidebarOpen, toggleSidebar } = useAuditProStore();
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50">
       {/* Sidebar */}
       <Sidebar />
       
-      {/* Overlay para mobile */}
+      {/* Overlay para todos os dispositivos */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black bg-opacity-50 z-40"
           onClick={toggleSidebar}
         />
       )}
       
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0">
+      {/* Main Content - Ocupa toda a largura */}
+      <div className="flex flex-col min-h-screen">
         {/* Header */}
         <Header />
         

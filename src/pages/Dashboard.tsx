@@ -110,6 +110,51 @@ const complianceOverTime = [
   { month: 'Jun', compliance: 90 }
 ];
 
+const auditorPerformance = [
+  { 
+    name: 'Ana Silva', 
+    auditorias: 8, 
+    conformidade: 92, 
+    tempoMedio: 4.2,
+    color: '#3b82f6'
+  },
+  { 
+    name: 'Carlos Santos', 
+    auditorias: 6, 
+    conformidade: 88, 
+    tempoMedio: 3.8,
+    color: '#10b981'
+  },
+  { 
+    name: 'Maria Oliveira', 
+    auditorias: 10, 
+    conformidade: 95, 
+    tempoMedio: 4.5,
+    color: '#8b5cf6'
+  },
+  { 
+    name: 'João Pereira', 
+    auditorias: 7, 
+    conformidade: 85, 
+    tempoMedio: 5.1,
+    color: '#f59e0b'
+  },
+  { 
+    name: 'Fernanda Costa', 
+    auditorias: 9, 
+    conformidade: 91, 
+    tempoMedio: 4.0,
+    color: '#ef4444'
+  },
+  { 
+    name: 'Roberto Lima', 
+    auditorias: 5, 
+    conformidade: 89, 
+    tempoMedio: 4.8,
+    color: '#06b6d4'
+  }
+];
+
 export function Dashboard() {
   const { updateKPIs, kpis } = useAuditProStore();
 
@@ -319,6 +364,86 @@ export function Dashboard() {
                 />
               </AreaChart>
             </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Desempenho por Auditor */}
+        <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4 sm:mb-6">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900">Desempenho por Auditor</h3>
+            <div className="flex items-center space-x-2 text-xs sm:text-sm text-gray-600">
+              <span>Mês atual</span>
+            </div>
+          </div>
+          <div className="h-64 sm:h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={auditorPerformance} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis 
+                  dataKey="name" 
+                  fontSize={12}
+                  tick={{ fontSize: 12 }}
+                  angle={-45}
+                  textAnchor="end"
+                  height={60}
+                />
+                <YAxis 
+                  fontSize={12}
+                  tick={{ fontSize: 12 }}
+                />
+                <Tooltip 
+                  formatter={(value, name) => {
+                    if (name === 'auditorias') return [`${value}`, 'Auditorias'];
+                    if (name === 'conformidade') return [`${value}%`, 'Conformidade'];
+                    if (name === 'tempoMedio') return [`${value}h`, 'Tempo Médio'];
+                    return [value, name];
+                  }}
+                  labelFormatter={(label) => `Auditor: ${label}`}
+                  content={({ active, payload, label }) => {
+                    if (active && payload && payload.length) {
+                      const data = payload[0].payload;
+                      return (
+                        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+                          <p className="font-semibold text-gray-900 mb-2">{label}</p>
+                          <div className="space-y-1">
+                            <p className="text-sm text-gray-600">
+                              <span className="font-medium">Auditorias:</span> {data.auditorias}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              <span className="font-medium">Conformidade:</span> {data.conformidade}%
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              <span className="font-medium">Tempo Médio:</span> {data.tempoMedio}h
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+                <Bar 
+                  dataKey="auditorias" 
+                  radius={[4, 4, 0, 0]}
+                >
+                  {auditorPerformance.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+            {auditorPerformance.map((auditor, index) => (
+              <div key={index} className="flex items-center space-x-2">
+                <div 
+                  className="w-3 h-3 rounded-full flex-shrink-0" 
+                  style={{ backgroundColor: auditor.color }}
+                />
+                <span className="text-xs sm:text-sm text-gray-600 truncate">{auditor.name}</span>
+                <span className="text-xs sm:text-sm font-medium text-gray-900">{auditor.conformidade}%</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>

@@ -68,7 +68,7 @@ export const AuditReports: React.FC = () => {
       new Date(audit.scheduledDate) <= dateRange.endDate;
 
     const matchesStatus = !filters.status || filters.status.includes(audit.status);
-    const matchesType = !filters.type || filters.type.includes(audit.type);
+    const matchesType = !filters.type || filters.type.includes(audit.type as any);
     const matchesAuditor = !filters.auditor || filters.auditor.includes(audit.auditorId);
 
     return matchesSearch && matchesDateRange && matchesStatus && matchesType && matchesAuditor;

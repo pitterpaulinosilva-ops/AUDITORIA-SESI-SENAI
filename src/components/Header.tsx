@@ -31,6 +31,29 @@ export function Header() {
   // Obter nome da página atual
   const currentPageName = pageNames[location.pathname] || 'AuditPro';
 
+  // Função para obter as classes de cor baseadas na rota atual
+  const getModuleColorClasses = () => {
+    switch (location.pathname) {
+      case '/':
+      case '/dashboard':
+        return 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border-blue-300';
+      case '/audits':
+        return 'bg-gradient-to-r from-emerald-100 to-emerald-200 text-emerald-800 border-emerald-300';
+      case '/checklists':
+        return 'bg-gradient-to-r from-purple-100 to-purple-200 text-purple-800 border-purple-300';
+      case '/non-conformities':
+        return 'bg-gradient-to-r from-orange-100 to-orange-200 text-orange-800 border-orange-300';
+      case '/planning':
+        return 'bg-gradient-to-r from-indigo-100 to-indigo-200 text-indigo-800 border-indigo-300';
+      case '/reports':
+        return 'bg-gradient-to-r from-teal-100 to-teal-200 text-teal-800 border-teal-300';
+      case '/settings':
+        return 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border-gray-300';
+      default:
+        return 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border-blue-300';
+    }
+  };
+
   // Mock de notificações
   const notifications = [
     {
@@ -60,31 +83,35 @@ export function Header() {
 
   return (
     <header className="bg-gradient-to-r from-white via-white to-gray-50/30 border-b border-gray-200/80 sticky top-0 z-30 backdrop-blur-sm shadow-sm">
-      <div className="flex items-center justify-between px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
+      <div className="flex items-center justify-between px-3 sm:px-4 lg:px-6 py-1.5 sm:py-2">
         {/* Left Section */}
         <div className="flex items-center space-x-2 sm:space-x-4 flex-1 min-w-0">
-          {/* Mobile Menu Button */}
+          {/* Menu Button */}
           <button
             onClick={toggleSidebar}
-            className="p-2.5 rounded-xl hover:bg-gray-100/80 transition-all duration-200 lg:hidden hover:scale-105 active:scale-95 min-h-[44px] min-w-[44px] flex items-center justify-center flex-shrink-0"
+            className="p-2 rounded-xl hover:bg-gray-100/80 transition-all duration-200 hover:scale-105 active:scale-95 min-h-[36px] min-w-[36px] flex items-center justify-center flex-shrink-0"
           >
             <Menu className="w-5 h-5 text-gray-600" />
           </button>
 
-          {/* Page Title */}
-          <div className="min-w-0 flex-1">
-            <h1 className="text-lg sm:text-xl font-bold text-gray-900 tracking-tight truncate">
-              {currentPageName}
-            </h1>
-            <p className="text-xs sm:text-sm text-gray-500 hidden sm:block font-medium truncate">
-              {location.pathname === '/dashboard' && 'Visão geral do sistema de auditoria'}
-              {location.pathname === '/audits' && 'Gerencie suas auditorias'}
-              {location.pathname === '/checklists' && 'Crie e edite checklists'}
-              {location.pathname === '/non-conformities' && 'Acompanhe não conformidades'}
-              {location.pathname === '/planning' && 'Planeje recursos e cronogramas'}
-              {location.pathname === '/reports' && 'Gere relatórios personalizados'}
-              {location.pathname === '/settings' && 'Configure o sistema'}
-            </p>
+          {/* Logo and Module Reference */}
+          <div className="min-w-0 flex-1 flex flex-col items-start">
+            <img 
+              src="/sesi-senai-logo.png" 
+              alt="SESI SENAI" 
+              className="h-6 sm:h-8 w-auto object-contain"
+            />
+            <div className="flex items-center mt-1">
+              <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border shadow-sm ${getModuleColorClasses()}`}>
+                {(location.pathname === '/' || location.pathname === '/dashboard') && 'DASH'}
+                {location.pathname === '/audits' && 'AUD'}
+                {location.pathname === '/checklists' && 'CHK'}
+                {location.pathname === '/non-conformities' && 'NC'}
+                {location.pathname === '/planning' && 'PLAN'}
+                {location.pathname === '/reports' && 'REL'}
+                {location.pathname === '/settings' && 'CFG'}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -106,7 +133,7 @@ export function Header() {
           <div className="relative">
             <button
               onClick={() => setShowNotifications(!showNotifications)}
-              className="relative p-2.5 rounded-xl hover:bg-gray-100/80 transition-all duration-200 hover:scale-105 active:scale-95 group min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="relative p-2 rounded-xl hover:bg-gray-100/80 transition-all duration-200 hover:scale-105 active:scale-95 group min-h-[36px] min-w-[36px] flex items-center justify-center"
             >
               <Bell className="w-5 h-5 text-gray-600 group-hover:text-gray-700 transition-colors duration-200" />
               {unreadCount > 0 && (
@@ -163,9 +190,9 @@ export function Header() {
           <div className="relative">
             <button
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center space-x-2 p-2 rounded-xl hover:bg-gray-100/80 transition-all duration-200 hover:scale-105 active:scale-95 group min-h-[44px]"
+              className="flex items-center space-x-2 p-2 rounded-xl hover:bg-gray-100/80 transition-all duration-200 hover:scale-105 active:scale-95 group min-h-[36px]"
             >
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-blue-700 rounded-full flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow duration-200 flex-shrink-0">
+              <div className="w-7 h-7 bg-gradient-to-r from-blue-600 to-blue-700 rounded-full flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow duration-200 flex-shrink-0">
                 <User className="w-4 h-4 text-white" />
               </div>
               <div className="hidden sm:block text-left min-w-0">
@@ -213,7 +240,7 @@ export function Header() {
       </div>
 
       {/* Mobile Search */}
-      <div className="md:hidden px-3 sm:px-4 pb-3 sm:pb-4">
+      <div className="md:hidden px-3 sm:px-4 pb-2 sm:pb-3">
         <div className="relative group">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-200" />
           <input

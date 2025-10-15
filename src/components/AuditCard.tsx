@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, User, Building, FileText, Eye, Edit, Play, Trash2 } from 'lucide-react';
+import { Calendar, User, Building, FileText, Eye, Edit, Play, X } from 'lucide-react';
 
 import { AuditStatus, AuditType, ExecutionNote } from '../types';
 
@@ -7,7 +7,7 @@ interface AuditCardProps {
   id: string;
   title: string;
   status: AuditStatus;
-  type: AuditType;
+  type: AuditType | string;
   sector: string;
   auditor: string;
   scheduledDate: Date;
@@ -16,7 +16,7 @@ interface AuditCardProps {
   onView?: (id: string) => void;
   onEdit?: (id: string) => void;
   onExecute?: (id: string) => void;
-  onDelete?: (id: string) => void;
+  onCancel?: (id: string) => void;
 }
 
 const statusConfig = {
@@ -55,7 +55,7 @@ export const AuditCard: React.FC<AuditCardProps> = ({
   onView,
   onEdit,
   onExecute,
-  onDelete
+  onCancel
 }) => {
   const config = statusConfig[status];
 
@@ -100,13 +100,13 @@ export const AuditCard: React.FC<AuditCardProps> = ({
               <Play className="w-4 h-4" />
             </button>
           )}
-          {onDelete && status !== 'in_progress' && (
+          {onCancel && status !== AuditStatus.COMPLETED && status !== AuditStatus.CANCELLED && (
             <button
-              onClick={() => onDelete(id)}
-              className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors touch-manipulation"
-              title="Excluir"
+              onClick={() => onCancel(id)}
+              className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors touch-manipulation"
+              title="Cancelar"
             >
-              <Trash2 className="w-4 h-4" />
+              <X className="w-4 h-4" />
             </button>
           )}
         </div>

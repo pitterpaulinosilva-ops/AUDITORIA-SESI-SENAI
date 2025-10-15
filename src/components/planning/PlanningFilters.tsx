@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Search, Filter, X } from 'lucide-react';
-import { AuditStatus, AuditType } from '../../types';
+import { AuditStatus, AuditType } from '@/types';
 
 interface PlanningFiltersProps {
   onFiltersChange: (filters: PlanningFilters) => void;

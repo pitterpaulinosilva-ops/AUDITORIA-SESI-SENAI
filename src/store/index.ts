@@ -18,7 +18,12 @@ import {
   AuditType,
   EvidenceType,
   ExecutionTimingStatus,
-  ExecutionNote
+  ExecutionNote,
+  Auditor,
+  Sector,
+  Subprocess,
+  Process,
+  AuditTypeConfig
 } from '../types';
 
 // Interface do estado principal
@@ -34,6 +39,13 @@ interface AuditProState {
   kpis: KPI[];
   chartData: ChartData[];
   systemConfig: SystemConfig;
+  
+  // Dados de configurações
+  auditors: Auditor[];
+  sectors: Sector[];
+  subprocesses: Subprocess[];
+  processes: Process[];
+  auditTypes: AuditTypeConfig[];
   
   // Estado da UI
   sidebarOpen: boolean;
@@ -63,7 +75,7 @@ interface AuditProState {
   createChecklistVersion: (id: string, changes: string[]) => void;
   activateChecklistVersion: (checklistId: string, versionId: string) => void;
   getChecklistVersions: (checklistId: string) => ChecklistVersion[];
-  compareChecklistVersions: (checklistId: string, version1: string, version2: string) => any;
+  compareChecklistVersions: (checklistId: string, version1: string, version2: string) => Record<string, unknown>;
   
   // Ações para não conformidades
   addNonConformity: (nc: Omit<NonConformity, 'id' | 'createdAt' | 'updatedAt'>) => void;
@@ -119,6 +131,30 @@ interface AuditProState {
   resetStore: () => void;
   exportData: () => string;
   importData: (data: string) => void;
+
+  // Ações para configurações
+  addAuditor: (auditor: Omit<Auditor, 'id'>) => void;
+  updateAuditor: (id: number, updates: Partial<Omit<Auditor, 'id'>>) => void;
+  deleteAuditor: (id: number) => void;
+  
+  addSector: (sector: Omit<Sector, 'id'>) => void;
+  updateSector: (id: number, updates: Partial<Omit<Sector, 'id'>>) => void;
+  deleteSector: (id: number) => void;
+  
+  addSubprocess: (subprocess: Omit<Subprocess, 'id'>) => void;
+  updateSubprocess: (id: number, updates: Partial<Omit<Subprocess, 'id'>>) => void;
+  deleteSubprocess: (id: number) => void;
+  
+  addProcess: (process: Omit<Process, 'id'>) => void;
+  updateProcess: (id: number, updates: Partial<Omit<Process, 'id'>>) => void;
+  deleteProcess: (id: number) => void;
+  
+  addAuditType: (auditType: Omit<AuditTypeConfig, 'id'>) => void;
+  updateAuditType: (id: number, updates: Partial<Omit<AuditTypeConfig, 'id'>>) => void;
+  deleteAuditType: (id: number) => void;
+  
+  getSubprocessesBySector: (sectorName: string) => Subprocess[];
+  getProcessesBySector: (sectorName: string) => Process[];
 }
 
 // Configuração inicial do sistema
@@ -513,6 +549,13 @@ export const useAuditProStore = create<AuditProState>()(
       kpis: [],
       chartData: [],
       systemConfig: initialSystemConfig,
+      
+      // Estado inicial das configurações
+      auditors: [],
+      sectors: [],
+      subprocesses: [],
+      processes: [],
+      auditTypes: [],
       
       // Estado da UI
       sidebarOpen: true,
@@ -929,7 +972,7 @@ export const useAuditProStore = create<AuditProState>()(
         return get().resources.find((resource) => resource.id === id);
       },
       
-      getAvailableResources: (date) => {
+      getAvailableResources: () => {
         // Implementação simplificada - pode ser expandida com lógica de disponibilidade
         return get().resources.filter((resource) => resource.isActive);
       },
@@ -1078,9 +1121,150 @@ export const useAuditProStore = create<AuditProState>()(
             loading: false,
             error: null
           }));
-        } catch (error) {
+        } catch {
           set({ error: 'Erro ao importar dados: formato inválido' });
         }
+      },
+
+      // Ações para Auditores
+      addAuditor: (auditor: Omit<Auditor, 'id'>) => {
+        const newAuditor: Auditor = {
+          ...auditor,
+          id: Date.now()
+        };
+        set((state) => ({
+          auditors: [...state.auditors, newAuditor]
+        }));
+      },
+
+      updateAuditor: (id: number, updates: Partial<Omit<Auditor, 'id'>>) => {
+        set((state) => ({
+          auditors: state.auditors.map((auditor) =>
+            auditor.id === id ? { ...auditor, ...updates } : auditor
+          )
+        }));
+      },
+
+      deleteAuditor: (id: number) => {
+        set((state) => ({
+          auditors: state.auditors.filter((auditor) => auditor.id !== id)
+        }));
+      },
+
+      // Ações para Setores
+      addSector: (sector: Omit<Sector, 'id'>) => {
+        const newSector: Sector = {
+          ...sector,
+          id: Date.now()
+        };
+        set((state) => ({
+          sectors: [...state.sectors, newSector]
+        }));
+      },
+
+      updateSector: (id: number, updates: Partial<Omit<Sector, 'id'>>) => {
+        set((state) => ({
+          sectors: state.sectors.map((sector) =>
+            sector.id === id ? { ...sector, ...updates } : sector
+          )
+        }));
+      },
+
+      deleteSector: (id: number) => {
+        set((state) => ({
+          sectors: state.sectors.filter((sector) => sector.id !== id),
+          // Remove subprocessos e processos relacionados
+          subprocesses: state.subprocesses.filter((subprocess) => 
+            state.sectors.find(s => s.id === id)?.name !== subprocess.sector
+          ),
+          processes: state.processes.filter((process) => 
+            state.sectors.find(s => s.id === id)?.name !== process.sector
+          )
+        }));
+      },
+
+      // Ações para Subprocessos
+      addSubprocess: (subprocess: Omit<Subprocess, 'id'>) => {
+        const newSubprocess: Subprocess = {
+          ...subprocess,
+          id: Date.now()
+        };
+        set((state) => ({
+          subprocesses: [...state.subprocesses, newSubprocess]
+        }));
+      },
+
+      updateSubprocess: (id: number, updates: Partial<Omit<Subprocess, 'id'>>) => {
+        set((state) => ({
+          subprocesses: state.subprocesses.map((subprocess) =>
+            subprocess.id === id ? { ...subprocess, ...updates } : subprocess
+          )
+        }));
+      },
+
+      deleteSubprocess: (id: number) => {
+        set((state) => ({
+          subprocesses: state.subprocesses.filter((subprocess) => subprocess.id !== id)
+        }));
+      },
+
+      // Ações para Processos
+      addProcess: (process: Omit<Process, 'id'>) => {
+        const newProcess: Process = {
+          ...process,
+          id: Date.now()
+        };
+        set((state) => ({
+          processes: [...state.processes, newProcess]
+        }));
+      },
+
+      updateProcess: (id: number, updates: Partial<Omit<Process, 'id'>>) => {
+        set((state) => ({
+          processes: state.processes.map((process) =>
+            process.id === id ? { ...process, ...updates } : process
+          )
+        }));
+      },
+
+      deleteProcess: (id: number) => {
+        set((state) => ({
+          processes: state.processes.filter((process) => process.id !== id)
+        }));
+      },
+
+      // Ações para Tipos de Auditoria
+      addAuditType: (auditType: Omit<AuditTypeConfig, 'id'>) => {
+        const newAuditType: AuditTypeConfig = {
+          ...auditType,
+          id: Date.now()
+        };
+        set((state) => ({
+          auditTypes: [...state.auditTypes, newAuditType]
+        }));
+      },
+
+      updateAuditType: (id: number, updates: Partial<Omit<AuditTypeConfig, 'id'>>) => {
+        set((state) => ({
+          auditTypes: state.auditTypes.map((auditType) =>
+            auditType.id === id ? { ...auditType, ...updates } : auditType
+          )
+        }));
+      },
+
+      deleteAuditType: (id: number) => {
+        set((state) => ({
+          auditTypes: state.auditTypes.filter((auditType) => auditType.id !== id)
+        }));
+      },
+
+      // Funções auxiliares para configurações
+      getSubprocessesBySector: (sectorName: string) => {
+        return get().subprocesses.filter((subprocess) => subprocess.sector === sectorName);
+      },
+
+      getProcessesBySector: (sectorName: string) => {
+        return get().processes.filter((process) => process.sector === sectorName);
       }
     }),
     {
@@ -1096,7 +1280,12 @@ export const useAuditProStore = create<AuditProState>()(
         reports: state.reports,
         kpis: state.kpis,
         chartData: state.chartData,
-        systemConfig: state.systemConfig
+        systemConfig: state.systemConfig,
+        auditors: state.auditors,
+        sectors: state.sectors,
+        subprocesses: state.subprocesses,
+        processes: state.processes,
+        auditTypes: state.auditTypes
       })
     }
   )

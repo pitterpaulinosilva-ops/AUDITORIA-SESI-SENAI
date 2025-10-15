@@ -17,7 +17,8 @@ import {
   Target,
   AlertTriangle,
   CheckCircle,
-  Camera
+  Camera,
+  X
 } from 'lucide-react';
 
 export function AuditDetails() {
@@ -226,6 +227,54 @@ export function AuditDetails() {
                 <p>Data programada: {formatDate(audit.executionNote.scheduledDate)}</p>
                 <p>Data de execução: {formatDate(audit.executionNote.executedAt)}</p>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cancellation History */}
+      {audit.status === AuditStatus.CANCELLED && (audit.cancellationReason || audit.cancellationDate) && (
+        <div className="bg-white rounded-lg border border-orange-200 p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 bg-orange-50 rounded-lg">
+              <X className="h-5 w-5 text-orange-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900">Histórico de Cancelamentos</h3>
+          </div>
+          
+          <div className="bg-orange-50 rounded-lg p-4 border border-orange-100">
+            <div className="space-y-3">
+              {audit.cancellationDate && audit.cancellationTime && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Calendar className="h-4 w-4 text-orange-600" />
+                  <span className="font-medium text-orange-800">Data e Hora:</span>
+                  <span className="text-orange-700">
+                    {audit.cancellationDate} às {audit.cancellationTime}
+                  </span>
+                </div>
+              )}
+              
+              {audit.cancelledBy && (
+                <div className="flex items-center gap-2 text-sm">
+                  <User className="h-4 w-4 text-orange-600" />
+                  <span className="font-medium text-orange-800">Cancelado por:</span>
+                  <span className="text-orange-700">{audit.cancelledBy}</span>
+                </div>
+              )}
+              
+              {audit.cancellationReason && (
+                <div className="mt-3">
+                  <div className="flex items-start gap-2 text-sm mb-2">
+                    <FileText className="h-4 w-4 text-orange-600 mt-0.5" />
+                    <span className="font-medium text-orange-800">Motivo do Cancelamento:</span>
+                  </div>
+                  <div className="bg-white rounded-md p-3 border border-orange-200">
+                    <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">
+                      {audit.cancellationReason}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

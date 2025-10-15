@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Search, Filter, Calendar, User, Building2 } from 'lucide-react';
-import { AuditStatus, AuditType } from '../types';
+import { AuditStatus } from '@/types';
+import type { AuditType } from '@/types';
 
 interface FilterBarProps {
   onFilterChange: (filters: AuditFilters) => void;

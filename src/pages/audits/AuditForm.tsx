@@ -1,20 +1,32 @@
-import { useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ArrowLeft, Save, Calendar, User, Building2, FileText, AlertCircle } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { 
+  ArrowLeft, 
+  FileText, 
+  Building2, 
+  User, 
+  Calendar, 
+  Save, 
+  AlertCircle,
+  Info
+} from 'lucide-react';
 import { useAuditProStore } from '../../store';
-import { AuditType, AuditTypeValue } from '../../types';
+import { toast } from 'sonner';
+import { AuditType, AuditTypeValue, AuditStatus } from '../../types';
 
-// Schema de validação
-const auditFormSchema = z.object({
+// Schema de validação dinâmico
+const createAuditFormSchema = (auditTypes: any[]) => z.object({
   title: z.string()
     .min(3, 'Título deve ter pelo menos 3 caracteres')
     .max(100, 'Título deve ter no máximo 100 caracteres'),
-  type: z.enum(['interna', 'externa', 'fornecedor'], {
-    required_error: 'Selecione o tipo de auditoria'
-  }),
+  type: z.string()
+    .min(1, 'Selecione o tipo de auditoria')
+    .refine((value) => auditTypes.some(type => type.name === value), {
+      message: 'Tipo de auditoria inválido'
+    }),
   sector: z.string()
     .min(2, 'Setor deve ter pelo menos 2 caracteres')
     .max(50, 'Setor deve ter no máximo 50 caracteres'),
@@ -33,14 +45,23 @@ const auditFormSchema = z.object({
   description: z.string().optional()
 });
 
-type AuditFormData = z.infer<typeof auditFormSchema>;
-
-export function AuditForm() {
+export default function AuditForm() {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEditing = Boolean(id);
   
-  const { audits, checklists, createAudit, updateAudit } = useAuditProStore();
+  const { 
+    audits, 
+    addAudit, 
+    updateAudit,
+    auditors,
+    sectors,
+    auditTypes
+  } = useAuditProStore();
+
+  // Criar schema dinâmico baseado nos tipos de auditoria disponíveis
+  const auditFormSchema = createAuditFormSchema(auditTypes);
+  type AuditFormData = z.infer<typeof auditFormSchema>;
   
   const {
     register,
@@ -52,7 +73,7 @@ export function AuditForm() {
     resolver: zodResolver(auditFormSchema),
     defaultValues: {
       title: '',
-      type: 'interna',
+      type: auditTypes.length > 0 ? auditTypes[0].name : '',
       sector: '',
       auditor: '',
       scheduledDate: '',
@@ -87,34 +108,38 @@ export function AuditForm() {
     try {
       const auditData = {
         title: data.title,
-        type: data.type === 'interna' ? AuditType.INTERNAL : 
-              data.type === 'externa' ? AuditType.EXTERNAL : 
-              AuditType.SUPPLIER,
+        type: data.type as AuditTypeValue,
         sector: data.sector,
         auditor: data.auditor,
         scheduledDate: new Date(data.scheduledDate),
-        checklistId: data.checklistId || undefined,
+        checklistId: data.checklistId || '',
         description: data.description || '',
         plannedStartDate: new Date(data.scheduledDate),
-        plannedEndDate: new Date(new Date(data.scheduledDate).getTime() + 24 * 60 * 60 * 1000), // +1 dia
-        auditorId: data.auditor, // Usando o nome como ID temporariamente
+        plannedEndDate: new Date(data.scheduledDate),
+        auditorId: data.auditor, // Usando o nome do auditor como ID temporário
         auditeeIds: [], // Array vazio por padrão
         department: data.sector, // Usando setor como departamento
         location: 'Sede', // Valor padrão
         objectives: ['Verificar conformidade'], // Valor padrão
         scope: 'Setor ' + data.sector, // Escopo baseado no setor
-        criteria: ['Normas internas'] // Critério padrão
+        criteria: ['Normas internas'], // Critério padrão
+        status: AuditStatus.PLANNED,
+        nonConformities: [],
+        evidences: []
       };
 
       if (isEditing && id) {
         updateAudit(id, auditData);
+        toast.success('Auditoria atualizada com sucesso!');
       } else {
-        createAudit(auditData);
+        addAudit(auditData);
+        toast.success('Auditoria criada com sucesso!');
       }
 
       navigate('/audits');
     } catch (error) {
       console.error('Erro ao salvar auditoria:', error);
+      toast.error('Erro ao salvar auditoria. Tente novamente.');
     }
   };
 
@@ -193,25 +218,40 @@ export function AuditForm() {
               <label className="block text-sm font-bold text-gray-800 mb-3">
                 Tipo de Auditoria *
               </label>
-              <select
-                {...register('type')}
-                className={`w-full px-5 py-4 border-2 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 font-medium bg-white ${
-                  errors.type ? 'border-red-300 bg-red-50/30' : 'border-gray-200 hover:border-gray-300 focus:bg-blue-50/30'
-                }`}
-              >
-                <option value="interna">Auditoria Interna</option>
-                <option value="externa">Auditoria Externa</option>
-                <option value="fornecedor">Auditoria de Fornecedor</option>
-              </select>
+              {auditTypes.length > 0 ? (
+                <select
+                  {...register('type')}
+                  className={`w-full px-5 py-4 border-2 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 font-medium bg-white ${
+                    errors.type ? 'border-red-300 bg-red-50/30' : 'border-gray-200 hover:border-gray-300 focus:bg-blue-50/30'
+                  }`}
+                >
+                  <option value="">Selecione um tipo de auditoria</option>
+                  {auditTypes.map((auditType) => (
+                    <option key={auditType.id} value={auditType.name} title={auditType.description}>
+                      {auditType.name}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <div className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl bg-gray-50">
+                  <div className="flex items-center gap-2 text-gray-500">
+                    <Info className="h-4 w-4" />
+                    <span className="text-sm">Nenhum tipo de auditoria configurado</span>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Configure os tipos de auditoria na seção "Configurações"
+                  </p>
+                </div>
+              )}
               {errors.type && (
                 <p className="mt-2 text-sm text-red-600 flex items-center gap-2 bg-red-50 px-3 py-2 rounded-lg border border-red-200">
                   <AlertCircle className="h-4 w-4" />
                   {errors.type.message}
                 </p>
               )}
-              {selectedType && (
+              {selectedType && auditTypes.find(at => at.name === selectedType)?.description && (
                 <p className="mt-2 text-sm text-blue-700 bg-blue-50 px-3 py-2 rounded-lg border border-blue-200 font-medium">
-                  {getTypeLabel(selectedType)}
+                  {auditTypes.find(at => at.name === selectedType)?.description}
                 </p>
               )}
             </div>
@@ -224,14 +264,31 @@ export function AuditForm() {
                 </div>
                 Setor *
               </label>
-              <input
-                type="text"
-                {...register('sector')}
-                className={`w-full px-5 py-4 border-2 rounded-xl focus:ring-4 focus:ring-green-100 focus:border-green-500 transition-all duration-200 font-medium placeholder:text-gray-400 ${
-                  errors.sector ? 'border-red-300 bg-red-50/30' : 'border-gray-200 hover:border-gray-300 focus:bg-green-50/30'
-                }`}
-                placeholder="Ex: Produção, Qualidade, Administrativo"
-              />
+              {sectors.length > 0 ? (
+                <select
+                  {...register('sector')}
+                  className={`w-full px-5 py-4 border-2 rounded-xl focus:ring-4 focus:ring-green-100 focus:border-green-500 transition-all duration-200 font-medium bg-white ${
+                    errors.sector ? 'border-red-300 bg-red-50/30' : 'border-gray-200 hover:border-gray-300 focus:bg-green-50/30'
+                  }`}
+                >
+                  <option value="">Selecione um setor</option>
+                  {sectors.map((sector) => (
+                    <option key={sector.id} value={sector.name}>
+                      {sector.name}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <div className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl bg-gray-50">
+                  <div className="flex items-center gap-2 text-gray-500">
+                    <Info className="h-4 w-4" />
+                    <span className="text-sm">Nenhum setor configurado</span>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Configure os setores na seção "Configurações"
+                  </p>
+                </div>
+              )}
               {errors.sector && (
                 <p className="mt-2 text-sm text-red-600 flex items-center gap-2 bg-red-50 px-3 py-2 rounded-lg border border-red-200">
                   <AlertCircle className="h-4 w-4" />
@@ -248,14 +305,31 @@ export function AuditForm() {
                 </div>
                 Auditor Responsável *
               </label>
-              <input
-                type="text"
-                {...register('auditor')}
-                className={`w-full px-5 py-4 border-2 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-500 transition-all duration-200 font-medium placeholder:text-gray-400 ${
-                  errors.auditor ? 'border-red-300 bg-red-50/30' : 'border-gray-200 hover:border-gray-300 focus:bg-purple-50/30'
-                }`}
-                placeholder="Nome do auditor responsável"
-              />
+              {auditors.length > 0 ? (
+                <select
+                  {...register('auditor')}
+                  className={`w-full px-5 py-4 border-2 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-500 transition-all duration-200 font-medium bg-white ${
+                    errors.auditor ? 'border-red-300 bg-red-50/30' : 'border-gray-200 hover:border-gray-300 focus:bg-purple-50/30'
+                  }`}
+                >
+                  <option value="">Selecione um auditor</option>
+                  {auditors.map((auditor) => (
+                    <option key={auditor.id} value={auditor.name}>
+                      {auditor.name} - {auditor.role}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <div className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl bg-gray-50">
+                  <div className="flex items-center gap-2 text-gray-500">
+                    <Info className="h-4 w-4" />
+                    <span className="text-sm">Nenhum auditor configurado</span>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Configure os auditores na seção "Configurações"
+                  </p>
+                </div>
+              )}
               {errors.auditor && (
                 <p className="mt-2 text-sm text-red-600 flex items-center gap-2 bg-red-50 px-3 py-2 rounded-lg border border-red-200">
                   <AlertCircle className="h-4 w-4" />

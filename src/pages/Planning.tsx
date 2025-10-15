@@ -9,7 +9,8 @@ import { CalendarViewToggle, type CalendarView } from '../components/planning/Ca
 import { WeekView } from '../components/planning/WeekView';
 import { ListView } from '../components/planning/ListView';
 import { AuditModal } from '../components/planning/AuditModal';
-import { Audit, AuditStatus } from '../types';
+import type { Audit } from '@/types';
+import { AuditStatus } from '@/types';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -38,7 +39,7 @@ export function Planning() {
       }
 
       // Filtro por tipo
-      if (filters.type.length > 0 && !filters.type.includes(audit.type)) {
+      if (filters.type.length > 0 && !filters.type.includes(audit.type as any)) {
         return false;
       }
 

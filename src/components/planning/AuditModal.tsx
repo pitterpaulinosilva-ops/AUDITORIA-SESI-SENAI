@@ -1,5 +1,6 @@
 import { X, Calendar, User, Clock, FileText } from 'lucide-react';
-import { Audit, AuditStatus } from '../../types';
+import type { Audit } from '@/types';
+import { AuditStatus } from '@/types';
 import { AuditIndicator } from './AuditIndicator';
 
 interface AuditModalProps {

@@ -2,7 +2,8 @@ import React, { useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuditProStore } from '../../store';
 import { StatusBadge } from '../../components/StatusBadge';
-import { AuditStatus, EvidenceType, NonConformitySeverity, NonConformityStatus } from '../../types';
+import { AuditStatus } from '@/types';
+import { EvidenceType, NonConformitySeverity, NonConformityStatus } from '@/types';
 import { 
   ArrowLeft, 
   Camera, 

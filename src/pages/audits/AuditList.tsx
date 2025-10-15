@@ -6,13 +6,14 @@ import { FilterBar, AuditFilters } from '../../components/FilterBar';
 import { Pagination } from '../../components/Pagination';
 import { StatusBadge } from '../../components/StatusBadge';
 import { AuditCard } from '../../components/AuditCard';
+import { CancelAuditModal } from '../../components/CancelAuditModal';
 import { AuditStatus } from '../../types';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export function AuditList() {
   const navigate = useNavigate();
-  const { audits, deleteAudit } = useAuditProStore();
+  const { audits, deleteAudit, updateAudit } = useAuditProStore();
   
   const [filters, setFilters] = useState<AuditFilters>({
     search: '',
@@ -27,6 +28,11 @@ export function AuditList() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
+  
+  // Estados para o modal de cancelamento
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [auditToCancel, setAuditToCancel] = useState<{ id: string; title: string } | null>(null);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   // Filtrar auditorias
   const filteredAudits = useMemo(() => {
@@ -112,9 +118,44 @@ export function AuditList() {
     navigate(`/audits/${id}/execute`);
   };
 
-  const handleDelete = (id: string) => {
-    if (window.confirm('Tem certeza que deseja excluir esta auditoria?')) {
-      deleteAudit(id);
+  const handleCancel = (id: string) => {
+    const audit = audits.find(a => a.id === id);
+    if (audit) {
+      setAuditToCancel({ id, title: audit.title });
+      setCancelModalOpen(true);
+    }
+  };
+
+  const handleCancelConfirm = async (reason: string) => {
+    if (!auditToCancel) return;
+
+    setIsCancelling(true);
+    try {
+      // Atualizar a auditoria com status cancelado e informações de rastreabilidade
+      const updatedAudit = {
+        ...audits.find(a => a.id === auditToCancel.id)!,
+        status: AuditStatus.CANCELLED,
+        cancellationReason: reason,
+        cancellationDate: new Date().toISOString(),
+        cancellationTime: new Date().toLocaleTimeString('pt-BR')
+      };
+
+      updateAudit(auditToCancel.id, updatedAudit);
+      
+      // Fechar modal e limpar estados
+      setCancelModalOpen(false);
+      setAuditToCancel(null);
+    } catch (error) {
+      console.error('Erro ao cancelar auditoria:', error);
+    } finally {
+      setIsCancelling(false);
+    }
+  };
+
+  const handleCancelModalClose = () => {
+    if (!isCancelling) {
+      setCancelModalOpen(false);
+      setAuditToCancel(null);
     }
   };
 
@@ -288,14 +329,14 @@ export function AuditList() {
                           <div className="flex items-center justify-end gap-2">
                             <button
                               onClick={() => handleView(audit.id)}
-                              className="text-blue-600 hover:text-blue-900 transition-colors"
+                              className="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-full bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 border border-blue-200 hover:from-blue-100 hover:to-blue-200 hover:shadow-md transition-all duration-200"
                               title="Visualizar"
                             >
                               Ver
                             </button>
                             <button
                               onClick={() => handleEdit(audit.id)}
-                              className="text-yellow-600 hover:text-yellow-900 transition-colors"
+                              className="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-full bg-gradient-to-r from-yellow-50 to-yellow-100 text-yellow-700 border border-yellow-200 hover:from-yellow-100 hover:to-yellow-200 hover:shadow-md transition-all duration-200"
                               title="Editar"
                             >
                               Editar
@@ -303,19 +344,21 @@ export function AuditList() {
                             {audit.status !== AuditStatus.COMPLETED && audit.status !== AuditStatus.CANCELLED && (
                               <button
                                 onClick={() => handleExecute(audit.id)}
-                                className="text-green-600 hover:text-green-900 transition-colors"
+                                className="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-full bg-gradient-to-r from-green-50 to-green-100 text-green-700 border border-green-200 hover:from-green-100 hover:to-green-200 hover:shadow-md transition-all duration-200"
                                 title="Executar"
                               >
                                 Executar
                               </button>
                             )}
-                            <button
-                              onClick={() => handleDelete(audit.id)}
-                              className="text-red-600 hover:text-red-900 transition-colors"
-                              title="Excluir"
-                            >
-                              Excluir
-                            </button>
+                            {audit.status !== AuditStatus.COMPLETED && audit.status !== AuditStatus.CANCELLED && (
+                              <button
+                                onClick={() => handleCancel(audit.id)}
+                                className="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-full bg-gradient-to-r from-orange-50 to-orange-100 text-orange-700 border border-orange-200 hover:from-orange-100 hover:to-orange-200 hover:shadow-md transition-all duration-200"
+                                title="Cancelar"
+                              >
+                                Cancelar
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -344,7 +387,7 @@ export function AuditList() {
                   onView={handleView}
                   onEdit={handleEdit}
                   onExecute={handleExecute}
-                  onDelete={handleDelete}
+                  onCancel={handleCancel}
                 />
               ))}
             </div>
@@ -361,6 +404,15 @@ export function AuditList() {
           />
         </>
       )}
+
+      {/* Modal de cancelamento */}
+      <CancelAuditModal
+        isOpen={cancelModalOpen}
+        onClose={handleCancelModalClose}
+        onConfirm={handleCancelConfirm}
+        auditTitle={auditToCancel?.title || ''}
+        isLoading={isCancelling}
+      />
     </div>
   );
 }

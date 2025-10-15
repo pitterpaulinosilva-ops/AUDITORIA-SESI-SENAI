@@ -14,6 +14,7 @@ import {
   FileSpreadsheet,
   Eye
 } from 'lucide-react';
+import { useAuditProStore } from '../../store';
 
 export const Dashboard: React.FC = () => {
   const {
@@ -22,6 +23,14 @@ export const Dashboard: React.FC = () => {
     generateAuditReport,
     exportReport
   } = useReportsStore();
+
+  const {
+    auditors,
+    sectors,
+    auditTypes,
+    processes,
+    subprocesses
+  } = useAuditProStore();
 
   const [filters, setFilters] = useState<AuditReportFilters>({
     periodStart: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 dias atrás
@@ -145,16 +154,31 @@ export const Dashboard: React.FC = () => {
                 <FileText className="h-4 w-4 inline mr-2" />
                 Tipo de Auditoria
               </label>
-              <select
-                value={filters.auditType}
-                onChange={(e) => handleFilterChange('auditType', e.target.value as AuditTypeValue | 'all')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="all">Todos os tipos</option>
-                <option value="interna">Auditoria Interna</option>
-                <option value="externa">Auditoria Externa</option>
-                <option value="fornecedor">Auditoria de Fornecedor</option>
-              </select>
+              {auditTypes.length > 0 ? (
+                <select
+                  value={filters.auditType}
+                  onChange={(e) => handleFilterChange('auditType', e.target.value as AuditTypeValue | 'all')}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="all">Todos os tipos</option>
+                  {auditTypes.map((auditType) => (
+                    <option key={auditType.id} value={auditType.name}>
+                      {auditType.name}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <select
+                  value={filters.auditType}
+                  onChange={(e) => handleFilterChange('auditType', e.target.value as AuditTypeValue | 'all')}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="all">Todos os tipos</option>
+                  <option value="interna">Auditoria Interna</option>
+                  <option value="externa">Auditoria Externa</option>
+                  <option value="fornecedor">Auditoria de Fornecedor</option>
+                </select>
+              )}
             </div>
 
             {/* Nome do Auditor */}
@@ -163,13 +187,28 @@ export const Dashboard: React.FC = () => {
                 <User className="h-4 w-4 inline mr-2" />
                 Nome do Auditor
               </label>
-              <input
-                type="text"
-                placeholder="Digite o nome do auditor"
-                value={filters.auditorName}
-                onChange={(e) => handleFilterChange('auditorName', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              {auditors.length > 0 ? (
+                <select
+                  value={filters.auditorName}
+                  onChange={(e) => handleFilterChange('auditorName', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Todos os auditores</option>
+                  {auditors.map((auditor) => (
+                    <option key={auditor.id} value={auditor.name}>
+                      {auditor.name} - {auditor.role}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type="text"
+                  placeholder="Digite o nome do auditor"
+                  value={filters.auditorName}
+                  onChange={(e) => handleFilterChange('auditorName', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              )}
             </div>
 
             {/* Setor Auditado */}
@@ -178,13 +217,28 @@ export const Dashboard: React.FC = () => {
                 <Building2 className="h-4 w-4 inline mr-2" />
                 Setor Auditado
               </label>
-              <input
-                type="text"
-                placeholder="Digite o setor auditado"
-                value={filters.auditedSector}
-                onChange={(e) => handleFilterChange('auditedSector', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              {sectors.length > 0 ? (
+                <select
+                  value={filters.auditedSector}
+                  onChange={(e) => handleFilterChange('auditedSector', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Todos os setores</option>
+                  {sectors.map((sector) => (
+                    <option key={sector.id} value={sector.name}>
+                      {sector.name}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type="text"
+                  placeholder="Digite o setor auditado"
+                  value={filters.auditedSector}
+                  onChange={(e) => handleFilterChange('auditedSector', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              )}
             </div>
 
             {/* Processo Auditado */}
@@ -193,13 +247,28 @@ export const Dashboard: React.FC = () => {
                 <Settings className="h-4 w-4 inline mr-2" />
                 Processo Auditado
               </label>
-              <input
-                type="text"
-                placeholder="Digite o processo auditado"
-                value={filters.auditedProcess}
-                onChange={(e) => handleFilterChange('auditedProcess', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              {processes.length > 0 ? (
+                <select
+                  value={filters.auditedProcess}
+                  onChange={(e) => handleFilterChange('auditedProcess', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Todos os processos</option>
+                  {processes.map((process) => (
+                    <option key={process.id} value={process.name}>
+                      {process.name}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type="text"
+                  placeholder="Digite o processo auditado"
+                  value={filters.auditedProcess}
+                  onChange={(e) => handleFilterChange('auditedProcess', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              )}
             </div>
 
             {/* Subprocesso Auditado */}
@@ -208,13 +277,28 @@ export const Dashboard: React.FC = () => {
                 <Settings className="h-4 w-4 inline mr-2" />
                 Subprocesso Auditado
               </label>
-              <input
-                type="text"
-                placeholder="Digite o subprocesso auditado"
-                value={filters.auditedSubprocess}
-                onChange={(e) => handleFilterChange('auditedSubprocess', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              {subprocesses.length > 0 ? (
+                <select
+                  value={filters.auditedSubprocess}
+                  onChange={(e) => handleFilterChange('auditedSubprocess', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Todos os subprocessos</option>
+                  {subprocesses.map((subprocess) => (
+                    <option key={subprocess.id} value={subprocess.name}>
+                      {subprocess.name}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type="text"
+                  placeholder="Digite o subprocesso auditado"
+                  value={filters.auditedSubprocess}
+                  onChange={(e) => handleFilterChange('auditedSubprocess', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              )}
             </div>
           </div>
         </div>

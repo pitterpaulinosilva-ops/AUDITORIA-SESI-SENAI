@@ -89,7 +89,7 @@ export const NonConformityReports: React.FC = () => {
     : 0;
 
   const averageResolutionTime = filteredNonConformities
-    .filter(nc => nc.status === 'resolved' && nc.closedAt)
+    .filter(nc => nc.status === 'nc_resolved' && nc.closedAt)
     .reduce((acc, nc) => {
       const identifiedDate = new Date(nc.identifiedAt || nc.createdAt);
       const resolvedDate = new Date(nc.closedAt || new Date());
@@ -357,14 +357,14 @@ export const NonConformityReports: React.FC = () => {
                       </td>
                       <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          nc.status === 'resolved' ? 'bg-green-100 text-green-800' :
-                          nc.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
-                          nc.status === 'closed' ? 'bg-gray-100 text-gray-800' :
+                          nc.status === 'nc_resolved' ? 'bg-green-100 text-green-800' :
+                          nc.status === 'nc_in_progress' ? 'bg-blue-100 text-blue-800' :
+                          nc.status === 'nc_closed' ? 'bg-gray-100 text-gray-800' :
                           'bg-red-100 text-red-800'
                         }`}>
-                          {nc.status === 'resolved' ? 'Resolvida' :
-                           nc.status === 'in_progress' ? 'Em Andamento' :
-                           nc.status === 'closed' ? 'Fechada' : 'Aberta'}
+                          {nc.status === 'nc_resolved' ? 'Resolvida' :
+                           nc.status === 'nc_in_progress' ? 'Em Andamento' :
+                           nc.status === 'nc_closed' ? 'Fechada' : 'Aberta'}
                         </span>
                       </td>
                       <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">

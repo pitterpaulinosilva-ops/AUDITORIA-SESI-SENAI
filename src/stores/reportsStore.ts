@@ -2,15 +2,10 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { 
   DashboardMetrics, 
-  AuditorMetric, 
-  DepartmentMetric, 
-  TrendData, 
-  DateRange,
-  ReportConfig,
+  ReportConfig, 
   ReportSchedule,
   ExportOptions,
   AlertConfig,
-  CustomReportBuilder,
   Audit,
   NonConformity,
   AuditStatus,
@@ -18,15 +13,19 @@ import {
   NonConformityStatus,
   AuditReportFilters,
   AuditReportData,
-  ReportExportOptions
+  ReportExportOptions,
+  AuditorMetric,
+  DepartmentMetric,
+  DateRange,
+  TrendData
 } from '../types';
-import { differenceInDays, format, subDays, startOfMonth, endOfMonth, isWithinInterval } from 'date-fns';
+import { differenceInDays, format, isWithinInterval } from 'date-fns';
 
 interface ReportsState {
   // Estado
   dashboardMetrics: DashboardMetrics | null;
-  trendData: any;
-  alerts: any[];
+  trendData: Record<string, unknown>;
+  alerts: Record<string, unknown>[];
   reportConfigs: ReportConfig[];
   reportSchedules: ReportSchedule[];
   alertConfigs: AlertConfig[];
@@ -68,7 +67,7 @@ interface ReportsState {
   checkAlerts: (metrics: DashboardMetrics) => AlertConfig[];
   
   // Exportação (mantida para compatibilidade)
-  exportReportLegacy: (data: any, options: ExportOptions) => Promise<void>;
+  exportReportLegacy: (data: Record<string, unknown>, options: ExportOptions) => Promise<void>;
   
   // Utilitários
   setLoading: (loading: boolean) => void;
@@ -180,7 +179,7 @@ export const useReportsStore = create<ReportsState>()(
           };
 
           set({ dashboardMetrics: metrics, isLoading: false });
-        } catch (error) {
+        } catch {
           set({ error: 'Erro ao gerar métricas do dashboard', isLoading: false });
         }
       },
@@ -277,32 +276,26 @@ export const useReportsStore = create<ReportsState>()(
       },
 
       // Geração de dados de tendência
-      generateTrendData: (dateRange?: DateRange) => {
-        const range = dateRange || {
-          startDate: subDays(new Date(), 90),
-          endDate: new Date()
-        };
-
+      generateTrendData: () => {
         // Mock data para demonstração
-        const mockTrendData = {
-          audits: [
-            { period: 'Jan 2024', value: 15 },
-            { period: 'Fev 2024', value: 18 },
-            { period: 'Mar 2024', value: 22 }
+        const mockData = {
+          auditTrends: [
+            { month: 'Jan', audits: 12, score: 85 },
+            { month: 'Fev', audits: 15, score: 88 },
+            { month: 'Mar', audits: 18, score: 92 },
+            { month: 'Abr', audits: 14, score: 87 },
+            { month: 'Mai', audits: 20, score: 90 },
+            { month: 'Jun', audits: 16, score: 89 }
           ],
           nonConformitiesBySeverity: [
-            { label: 'Crítica', value: 5 },
-            { label: 'Alta', value: 12 },
-            { label: 'Média', value: 8 }
-          ],
-          auditsByStatus: [
-            { label: 'Concluídas', value: 45 },
-            { label: 'Em Progresso', value: 12 },
-            { label: 'Planejadas', value: 8 }
+            { severity: 'Crítica', count: 5, color: '#ef4444' },
+            { severity: 'Alta', count: 12, color: '#f97316' },
+            { severity: 'Média', count: 25, color: '#eab308' },
+            { severity: 'Baixa', count: 8, color: '#22c55e' }
           ]
         };
-
-        set({ trendData: mockTrendData, isLoading: false });
+        
+        set({ trendData: mockData });
       },
 
       // Geração de alertas
@@ -539,7 +532,7 @@ export const useReportsStore = create<ReportsState>()(
           });
 
           set({ auditReportData: filteredAudits, isLoading: false });
-        } catch (error) {
+        } catch {
           set({ error: 'Erro ao gerar relatório de auditoria', isLoading: false });
         }
       },
@@ -603,7 +596,7 @@ export const useReportsStore = create<ReportsState>()(
           }
           
           set({ isLoading: false });
-        } catch (error) {
+        } catch {
           set({ error: 'Erro ao exportar relatório', isLoading: false });
         }
       },
@@ -629,7 +622,7 @@ export const useReportsStore = create<ReportsState>()(
           }
           
           set({ isLoading: false });
-        } catch (error) {
+        } catch {
           set({ error: 'Erro ao exportar relatório', isLoading: false });
         }
       },

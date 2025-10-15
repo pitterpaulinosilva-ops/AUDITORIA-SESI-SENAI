@@ -18,12 +18,12 @@ export enum AuditType {
 export type AuditTypeValue = 'interna' | 'externa' | 'fornecedor';
 
 export enum NonConformityStatus {
-  OPEN = 'open',
-  IN_TREATMENT = 'in_treatment',
-  IN_PROGRESS = 'in_progress',
-  CLOSED = 'closed',
-  RESOLVED = 'resolved',
-  CANCELLED = 'cancelled'
+  OPEN = 'nc_open',
+  IN_TREATMENT = 'nc_in_treatment',
+  IN_PROGRESS = 'nc_in_progress',
+  CLOSED = 'nc_closed',
+  RESOLVED = 'nc_resolved',
+  CANCELLED = 'nc_cancelled'
 }
 
 export enum NonConformitySeverity {
@@ -85,7 +85,7 @@ export interface ExecutionNote {
 export interface Audit extends BaseEntity {
   title: string;
   description: string;
-  type: AuditType;
+  type: AuditType | AuditTypeValue | string;
   status: AuditStatus;
   plannedStartDate?: Date; // Opcional para compatibilidade
   plannedEndDate?: Date; // Opcional para compatibilidade
@@ -117,6 +117,11 @@ export interface Audit extends BaseEntity {
   reportPath?: string;
   executionNote?: ExecutionNote; // Nota sobre execução em relação ao prazo
   estimatedDuration?: number; // Duração estimada para compatibilidade
+  // Campos para histórico de cancelamento
+  cancellationReason?: string; // Motivo do cancelamento
+  cancellationDate?: string; // Data do cancelamento
+  cancellationTime?: string; // Hora do cancelamento
+  cancelledBy?: string; // Usuário que cancelou
 }
 
 // Interface para categoria de checklist
@@ -176,6 +181,38 @@ export interface Checklist extends BaseEntity {
   tags: string[];
   versions: ChecklistVersion[];
   parentId?: string; // Para duplicação
+}
+
+// Interfaces para configurações do sistema
+export interface Auditor {
+  id: number;
+  name: string;
+  email: string;
+  leader: boolean;
+  role: string; // "Auditor Líder" ou "Auditor"
+}
+
+export interface Sector {
+  id: number;
+  name: string;
+}
+
+export interface Subprocess {
+  id: number;
+  name: string;
+  sector: string; // Nome do setor (referência por string)
+}
+
+export interface Process {
+  id: number;
+  name: string;
+  sector: string; // Nome do setor (referência por string)
+}
+
+export interface AuditTypeConfig {
+  id: number;
+  name: string;
+  description: string;
 }
 
 // Interface para não conformidade
@@ -310,7 +347,7 @@ export interface Report extends BaseEntity {
   format: 'pdf' | 'excel' | 'word';
   filePath: string;
   generatedBy: string;
-  parameters: Record<string, any>;
+  parameters: Record<string, unknown>;
   size: number;
 }
 
@@ -333,8 +370,8 @@ export interface ChartData {
   id: string;
   type: 'pie' | 'bar' | 'line' | 'heatmap' | 'area';
   title: string;
-  data: any[];
-  config: Record<string, any>;
+  data: Record<string, unknown>[];
+  config: Record<string, unknown>;
   period: string;
   lastUpdated: Date;
 }
@@ -672,7 +709,7 @@ export interface CustomReportBuilder {
 // Interface para componentes de gráfico
 export interface TrendChartProps {
   title: string;
-  data: any; // Permite qualquer tipo de dados para compatibilidade com Chart.js
+  data: Record<string, unknown>; // Permite qualquer tipo de dados para compatibilidade com Chart.js
   height?: number;
   type?: 'line' | 'bar' | 'area';
 }
