@@ -238,35 +238,39 @@ export const CustomReports: React.FC = () => {
       case 'table':
         const tableData = data as any[];
         return (
-          <div className="bg-white p-4 rounded-lg border h-full">
-            <h3 className="text-sm font-medium text-gray-900 mb-4">{component.title}</h3>
-            <div className="overflow-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left py-2">Descrição</th>
-                    <th className="text-left py-2">Severidade</th>
-                    <th className="text-left py-2">Ocorrências</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tableData?.slice(0, component.config.limit || 5).map((row, index) => (
-                    <tr key={index} className="border-b">
-                      <td className="py-2">{row.description}</td>
-                      <td className="py-2">
-                        <span className={`px-2 py-1 rounded text-xs ${
-                          row.severity === 'Crítica' ? 'bg-red-100 text-red-800' :
-                          row.severity === 'Alta' ? 'bg-orange-100 text-orange-800' :
-                          'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {row.severity}
-                        </span>
-                      </td>
-                      <td className="py-2">{row.count}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          <div className="bg-white p-3 sm:p-4 rounded-lg border h-full">
+            <h3 className="text-sm font-medium text-gray-900 mb-3 sm:mb-4">{component.title}</h3>
+            <div className="overflow-x-auto -mx-3 sm:mx-0">
+              <div className="min-w-full inline-block align-middle">
+                <div className="overflow-hidden">
+                  <table className="min-w-full text-xs sm:text-sm">
+                    <thead className="bg-gray-50">
+                      <tr className="border-b">
+                        <th className="text-left py-2 px-3 sm:px-4 font-medium text-gray-900 whitespace-nowrap">Descrição</th>
+                        <th className="text-left py-2 px-3 sm:px-4 font-medium text-gray-900 whitespace-nowrap">Severidade</th>
+                        <th className="text-left py-2 px-3 sm:px-4 font-medium text-gray-900 whitespace-nowrap">Ocorrências</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {tableData?.slice(0, component.config.limit || 5).map((row, index) => (
+                        <tr key={index} className="hover:bg-gray-50 transition-colors">
+                          <td className="py-2 px-3 sm:px-4 text-gray-900 whitespace-nowrap">{row.description}</td>
+                          <td className="py-2 px-3 sm:px-4 whitespace-nowrap">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              row.severity === 'Crítica' ? 'bg-red-100 text-red-800' :
+                              row.severity === 'Alta' ? 'bg-orange-100 text-orange-800' :
+                              'bg-yellow-100 text-yellow-800'
+                            }`}>
+                              {row.severity}
+                            </span>
+                          </td>
+                          <td className="py-2 px-3 sm:px-4 text-gray-900 font-medium whitespace-nowrap">{row.count}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
         );

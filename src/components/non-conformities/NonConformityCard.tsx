@@ -62,38 +62,38 @@ export function NonConformityCard({ nonConformity }: NonConformityCardProps) {
                           nonConformity.description.toLowerCase().includes('paciente')
 
   return (
-    <div className="p-4 hover:bg-gray-50 transition-colors">
+    <div className="p-3 sm:p-4 hover:bg-gray-50 transition-colors">
       <div className="space-y-3">
         {/* Header */}
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-2">
-              <h4 className="text-lg font-semibold text-gray-900 truncate">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+              <h4 className="text-base sm:text-lg font-semibold text-gray-900 break-words">
                 {nonConformity.title}
               </h4>
               {isPatientRelated && (
-                <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-1 rounded-full whitespace-nowrap">
+                <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-1 rounded-full whitespace-nowrap self-start">
                   Evento - Paciente
                 </span>
               )}
             </div>
             
-            <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-sm text-gray-600">
               <SeverityBadge severity={nonConformity.severity} />
               <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(nonConformity.status)}`}>
                 {getStatusText(nonConformity.status)}
               </span>
               <div className="flex items-center gap-1">
-                <Calendar className="w-4 h-4" />
-                {formatDate(nonConformity.createdAt)}
+                <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                <span className="text-xs sm:text-sm">{formatDate(nonConformity.createdAt)}</span>
               </div>
             </div>
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+              className="text-blue-600 hover:text-blue-800 text-sm font-medium px-3 py-2 rounded-lg hover:bg-blue-50 transition-colors touch-manipulation"
             >
               {isExpanded ? 'Menos detalhes' : 'Mais detalhes'}
             </button>
@@ -101,42 +101,42 @@ export function NonConformityCard({ nonConformity }: NonConformityCardProps) {
         </div>
 
         {/* Basic Info */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
-          <div className="flex items-center gap-2 text-gray-600">
-            <MapPin className="w-4 h-4 flex-shrink-0" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 text-sm">
+          <div className="flex items-center gap-2 text-gray-600 min-w-0">
+            <MapPin className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
             <span className="truncate">{nonConformity.location}</span>
           </div>
           
-          <div className="flex items-center gap-2 text-gray-600">
-            <User className="w-4 h-4 flex-shrink-0" />
+          <div className="flex items-center gap-2 text-gray-600 min-w-0">
+            <User className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
             <span className="truncate">{nonConformity.identifiedBy}</span>
           </div>
           
-          <div className="flex items-center gap-2 text-gray-600">
-            <FileText className="w-4 h-4 flex-shrink-0" />
+          <div className="flex items-center gap-2 text-gray-600 min-w-0 sm:col-span-2 lg:col-span-1">
+            <FileText className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
             <span className="truncate">{nonConformity.category}</span>
           </div>
         </div>
 
         {/* Description */}
         <div className="bg-gray-50 p-3 rounded-lg">
-          <p className="text-gray-700 text-sm leading-relaxed">
+          <p className="text-gray-700 text-sm leading-relaxed break-words">
             {nonConformity.description}
           </p>
         </div>
 
         {/* Evidence Summary */}
         {nonConformity.evidences && nonConformity.evidences.length > 0 && (
-          <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 bg-blue-50 rounded-lg">
             <div className="flex items-center gap-2">
-              <Camera className="w-4 h-4 text-blue-600" />
+              <Camera className="w-4 h-4 text-blue-600 flex-shrink-0" />
               <span className="text-sm font-medium text-blue-900">
                 {nonConformity.evidences.length} evidência{nonConformity.evidences.length !== 1 ? 's' : ''} anexada{nonConformity.evidences.length !== 1 ? 's' : ''}
               </span>
             </div>
             <button
               onClick={() => setShowEvidences(true)}
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+              className="text-blue-600 hover:text-blue-800 text-sm font-medium px-3 py-2 rounded-lg hover:bg-blue-100 transition-colors touch-manipulation self-start sm:self-auto"
             >
               Visualizar
             </button>
@@ -151,7 +151,7 @@ export function NonConformityCard({ nonConformity }: NonConformityCardProps) {
               <div className="space-y-3">
                 <div>
                   <h5 className="text-sm font-medium text-gray-900 mb-1">Impacto</h5>
-                  <p className="text-sm text-gray-700 bg-gray-50 p-2 rounded">
+                  <p className="text-sm text-gray-700 bg-gray-50 p-2 rounded leading-relaxed">
                     {nonConformity.impact}
                   </p>
                 </div>
@@ -169,7 +169,7 @@ export function NonConformityCard({ nonConformity }: NonConformityCardProps) {
                 {nonConformity.rootCause && (
                   <div>
                     <h5 className="text-sm font-medium text-gray-900 mb-1">Causa Raiz</h5>
-                    <p className="text-sm text-gray-700 bg-gray-50 p-2 rounded">
+                    <p className="text-sm text-gray-700 bg-gray-50 p-2 rounded leading-relaxed">
                       {nonConformity.rootCause}
                     </p>
                   </div>
@@ -179,7 +179,7 @@ export function NonConformityCard({ nonConformity }: NonConformityCardProps) {
                   <div>
                     <h5 className="text-sm font-medium text-gray-900 mb-1">Prazo para Tratamento</h5>
                     <div className="flex items-center gap-2 text-sm text-gray-700">
-                      <Clock className="w-4 h-4" />
+                      <Clock className="w-4 h-4 flex-shrink-0" />
                       {formatDate(nonConformity.dueDate)}
                     </div>
                   </div>
@@ -194,11 +194,11 @@ export function NonConformityCard({ nonConformity }: NonConformityCardProps) {
                 <div className="space-y-2">
                   {nonConformity.correctiveActions.map((action, index) => (
                     <div key={action.id} className="bg-gray-50 p-3 rounded-lg">
-                      <div className="flex items-center justify-between mb-1">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
                         <span className="text-sm font-medium text-gray-900">
                           Ação {index + 1}
                         </span>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium self-start ${
                           action.status === 'completed' ? 'bg-green-100 text-green-800' :
                           action.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' :
                           action.status === 'overdue' ? 'bg-red-100 text-red-800' :
@@ -209,15 +209,15 @@ export function NonConformityCard({ nonConformity }: NonConformityCardProps) {
                            action.status === 'overdue' ? 'Atrasada' : 'Planejada'}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-700 mb-2">{action.description}</p>
-                      <div className="flex items-center gap-4 text-xs text-gray-600">
+                      <p className="text-sm text-gray-700 mb-2 leading-relaxed">{action.description}</p>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs text-gray-600">
                         <div className="flex items-center gap-1">
-                          <User className="w-3 h-3" />
-                          Responsável: {action.responsibleId}
+                          <User className="w-3 h-3 flex-shrink-0" />
+                          <span>Responsável: {action.responsibleId}</span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          Prazo: {formatDate(action.dueDate)}
+                          <Calendar className="w-3 h-3 flex-shrink-0" />
+                          <span>Prazo: {formatDate(action.dueDate)}</span>
                         </div>
                       </div>
                     </div>

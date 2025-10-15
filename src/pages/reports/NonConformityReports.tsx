@@ -308,76 +308,80 @@ export const NonConformityReports: React.FC = () => {
 
       {/* Tabela de Não Conformidades */}
       <div className="bg-white rounded-lg shadow-sm border">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Lista de Não Conformidades</h3>
+        <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
+          <h3 className="text-lg font-medium text-gray-900">Não Conformidades Detalhadas</h3>
         </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Não Conformidade
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Severidade
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Data Identificação
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Prazo
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredNonConformities.slice(0, 10).map((nc) => (
-                <tr key={nc.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">{nc.title}</div>
-                      <div className="text-sm text-gray-500">{nc.description}</div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      (nc.severity || 'low') === 'critical' ? 'bg-red-100 text-red-800' :
-                (nc.severity || 'low') === 'high' ? 'bg-orange-100 text-orange-800' :
-                (nc.severity || 'low') === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                'bg-green-100 text-green-800'
-              }`}>
-                {(nc.severity || 'low') === 'critical' ? 'Crítica' :
-                (nc.severity || 'low') === 'high' ? 'Alta' :
-                (nc.severity || 'low') === 'medium' ? 'Média' : 'Baixa'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      nc.status === 'resolved' ? 'bg-green-100 text-green-800' :
-                      nc.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
-                      nc.status === 'closed' ? 'bg-gray-100 text-gray-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
-                      {nc.status === 'resolved' ? 'Resolvida' :
-                       nc.status === 'in_progress' ? 'Em Andamento' :
-                       nc.status === 'closed' ? 'Fechada' : 'Aberta'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {new Date(nc.identifiedAt || nc.createdAt).toLocaleDateString('pt-BR')}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {nc.dueDate ? new Date(nc.dueDate).toLocaleDateString('pt-BR') : '-'}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="overflow-x-auto -mx-4 sm:mx-0">
+          <div className="min-w-full inline-block align-middle">
+            <div className="overflow-hidden">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                      Não Conformidade
+                    </th>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                      Severidade
+                    </th>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                      Status
+                    </th>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                      Data
+                    </th>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                      Prazo
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredNonConformities.slice(0, 10).map((nc) => (
+                    <tr key={nc.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">{nc.title}</div>
+                          <div className="text-sm text-gray-500 truncate max-w-xs">{nc.description}</div>
+                        </div>
+                      </td>
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          (nc.severity || 'low') === 'critical' ? 'bg-red-100 text-red-800' :
+                    (nc.severity || 'low') === 'high' ? 'bg-orange-100 text-orange-800' :
+                    (nc.severity || 'low') === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-green-100 text-green-800'
+                  }`}>
+                          {(nc.severity || 'low') === 'critical' ? 'Crítica' :
+                          (nc.severity || 'low') === 'high' ? 'Alta' :
+                          (nc.severity || 'low') === 'medium' ? 'Média' : 'Baixa'}
+                        </span>
+                      </td>
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          nc.status === 'resolved' ? 'bg-green-100 text-green-800' :
+                          nc.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
+                          nc.status === 'closed' ? 'bg-gray-100 text-gray-800' :
+                          'bg-red-100 text-red-800'
+                        }`}>
+                          {nc.status === 'resolved' ? 'Resolvida' :
+                           nc.status === 'in_progress' ? 'Em Andamento' :
+                           nc.status === 'closed' ? 'Fechada' : 'Aberta'}
+                        </span>
+                      </td>
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {new Date(nc.identifiedAt || nc.createdAt).toLocaleDateString('pt-BR')}
+                      </td>
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {nc.dueDate ? new Date(nc.dueDate).toLocaleDateString('pt-BR') : '-'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
         {filteredNonConformities.length > 10 && (
-          <div className="px-6 py-3 bg-gray-50 border-t border-gray-200">
+          <div className="px-4 sm:px-6 py-3 bg-gray-50 border-t border-gray-200">
             <p className="text-sm text-gray-500">
               Mostrando 10 de {filteredNonConformities.length} não conformidades. Use os filtros para refinar os resultados.
             </p>

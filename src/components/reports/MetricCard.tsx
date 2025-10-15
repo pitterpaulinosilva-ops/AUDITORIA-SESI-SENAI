@@ -83,45 +83,45 @@ export const MetricCard: React.FC<MetricCardProps> = ({
 
   if (isLoading) {
     return (
-      <div className={`p-6 rounded-lg border ${colors.bg} ${colors.border} animate-pulse`}>
-        <div className="flex items-center justify-between mb-4">
-          <div className="h-4 bg-gray-300 rounded w-24"></div>
-          <div className={`w-10 h-10 rounded-lg ${colors.bg} flex items-center justify-center`}>
-            <div className="w-5 h-5 bg-gray-300 rounded"></div>
+      <div className={`p-4 sm:p-6 rounded-lg border ${colors.bg} ${colors.border} animate-pulse`}>
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <div className="h-4 bg-gray-300 rounded w-20 sm:w-24"></div>
+          <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg ${colors.bg} flex items-center justify-center`}>
+            <div className="w-4 h-4 sm:w-5 sm:h-5 bg-gray-300 rounded"></div>
           </div>
         </div>
-        <div className="h-8 bg-gray-300 rounded w-16 mb-2"></div>
-        <div className="h-4 bg-gray-300 rounded w-20"></div>
+        <div className="h-6 sm:h-8 bg-gray-300 rounded w-12 sm:w-16 mb-2"></div>
+        <div className="h-3 sm:h-4 bg-gray-300 rounded w-16 sm:w-20"></div>
       </div>
     );
   }
 
   return (
     <div 
-      className={`p-6 rounded-lg border ${colors.bg} ${colors.border} transition-all duration-200 hover:shadow-md ${
+      className={`p-4 sm:p-6 rounded-lg border ${colors.bg} ${colors.border} transition-all duration-200 hover:shadow-md ${
         onClick ? 'cursor-pointer hover:scale-105' : ''
       }`}
       onClick={onClick}
     >
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-medium text-gray-600">{title}</h3>
-        <div className={`w-10 h-10 rounded-lg ${colors.bg} flex items-center justify-center border ${colors.border}`}>
-          <Icon className={`w-5 h-5 ${colors.icon}`} />
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <h3 className="text-xs sm:text-sm font-medium text-gray-600 truncate pr-2">{title}</h3>
+        <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg ${colors.bg} flex items-center justify-center border ${colors.border} flex-shrink-0`}>
+          <Icon className={`w-4 h-4 sm:w-5 sm:h-5 ${colors.icon}`} />
         </div>
       </div>
       
-      <div className="flex items-baseline justify-between">
-        <div>
-          <p className="text-2xl font-bold text-gray-900">
+      <div className="flex items-baseline justify-between flex-wrap gap-2">
+        <div className="min-w-0 flex-1">
+          <p className="text-xl sm:text-2xl font-bold text-gray-900 truncate">
             {typeof value === 'number' ? value.toLocaleString('pt-BR') : value}
             {unit && <span className="text-sm font-normal text-gray-500 ml-1">{unit}</span>}
           </p>
         </div>
         
         {trend && trendValue !== undefined && (
-          <div className={`flex items-center space-x-1 ${getTrendColor()}`}>
+          <div className={`flex items-center space-x-1 ${getTrendColor()} flex-shrink-0`}>
             {getTrendIcon()}
-            <span className="text-sm font-medium">
+            <span className="text-xs sm:text-sm font-medium">
               {Math.abs(trendValue).toFixed(1)}%
             </span>
           </div>
@@ -129,7 +129,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
       </div>
       
       {trend && trendValue !== undefined && (
-        <p className="text-xs text-gray-500 mt-2">
+        <p className="text-xs text-gray-500 mt-2 leading-relaxed">
           {trend === 'up' ? 'Aumento' : trend === 'down' ? 'Diminuição' : 'Estável'} em relação ao período anterior
         </p>
       )}

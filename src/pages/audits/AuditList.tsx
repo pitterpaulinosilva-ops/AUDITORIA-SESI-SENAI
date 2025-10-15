@@ -332,7 +332,15 @@ export function AuditList() {
               {paginatedAudits.map((audit) => (
                 <AuditCard
                   key={audit.id}
-                  audit={audit}
+                  id={audit.id}
+                  title={audit.title}
+                  status={audit.status}
+                  type={audit.type}
+                  sector={audit.sector}
+                  auditor={audit.auditor}
+                  scheduledDate={audit.scheduledDate}
+                  checklistId={audit.checklistId}
+                  executionNote={audit.executionNote}
                   onView={handleView}
                   onEdit={handleEdit}
                   onExecute={handleExecute}

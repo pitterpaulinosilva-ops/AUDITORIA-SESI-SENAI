@@ -9,7 +9,8 @@ import {
   Users,
   Calendar,
   FileText,
-  Target
+  Target,
+  FileCheck
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -29,6 +30,7 @@ import {
 } from 'recharts';
 import { useAuditProStore } from '../store';
 import { AuditStatus, NonConformityStatus, NonConformitySeverity } from '../types';
+import { MetricCard } from '../components/reports/MetricCard';
 
 // Dados mock para demonstração
 const mockKPIs = [
@@ -119,152 +121,154 @@ export function Dashboard() {
   const displayKPIs = kpis.length > 0 ? kpis : mockKPIs;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600 mt-1">Visão geral do sistema de auditoria interna</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-sm sm:text-base text-gray-600">Visão geral das auditorias e conformidades</p>
         </div>
-        <div className="mt-4 sm:mt-0 flex items-center space-x-3">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
           <select className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
             <option>Últimos 30 dias</option>
             <option>Últimos 90 dias</option>
             <option>Último ano</option>
           </select>
           <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
-            Atualizar Dados
+            Exportar Relatório
           </button>
         </div>
       </div>
 
-      {/* KPIs Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {displayKPIs.map((kpi) => (
-          <div key={kpi.id} className="bg-white rounded-lg border border-gray-200 p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                {kpi.category === 'audit' && <BarChart3 className="w-5 h-5 text-blue-600" />}
-                {kpi.category === 'quality' && <Target className="w-5 h-5 text-green-600" />}
-                {kpi.category === 'compliance' && <AlertTriangle className="w-5 h-5 text-red-600" />}
-                {kpi.category === 'efficiency' && <Clock className="w-5 h-5 text-purple-600" />}
-                <span className="text-sm font-medium text-gray-600">{kpi.name}</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                {kpi.trend === 'up' ? (
-                  <TrendingUp className="w-4 h-4 text-green-500" />
-                ) : (
-                  <TrendingDown className="w-4 h-4 text-red-500" />
-                )}
-                <span className={`text-xs font-medium ${
-                  kpi.trend === 'up' ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {Math.abs(kpi.trendPercentage)}%
-                </span>
-              </div>
-            </div>
-            
-            <div className="mt-4">
-              <div className="flex items-baseline space-x-2">
-                <span className="text-2xl font-bold text-gray-900">
-                  {kpi.value}
-                </span>
-                <span className="text-sm text-gray-500">{kpi.unit}</span>
-                {kpi.target && (
-                  <span className="text-sm text-gray-400">
-                    / {kpi.target}{kpi.unit}
-                  </span>
-                )}
-              </div>
-              
-              {kpi.target && (
-                <div className="mt-3">
-                  <div className="flex justify-between text-xs text-gray-600 mb-1">
-                    <span>Progresso</span>
-                    <span>{Math.round((kpi.value / kpi.target) * 100)}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className={`h-2 rounded-full ${
-                        kpi.value >= kpi.target ? 'bg-green-500' : 'bg-blue-500'
-                      }`}
-                      style={{ width: `${Math.min((kpi.value / kpi.target) * 100, 100)}%` }}
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
+      {/* KPIs */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <MetricCard
+          title="Auditorias Realizadas"
+          value={42}
+          trend="up"
+          trendValue={12.5}
+          icon={FileCheck}
+          color="blue"
+        />
+        <MetricCard
+          title="Taxa de Conformidade"
+          value={87.3}
+          unit="%"
+          trend="up"
+          trendValue={2.1}
+          icon={CheckCircle}
+          color="green"
+        />
+        <MetricCard
+          title="Não Conformidades"
+          value={15}
+          trend="down"
+          trendValue={8.3}
+          icon={AlertTriangle}
+          color="orange"
+        />
+        <MetricCard
+          title="Ações Pendentes"
+          value={8}
+          trend="stable"
+          trendValue={0}
+          icon={Clock}
+          color="red"
+        />
       </div>
 
-      {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Auditorias por Mês */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">Auditorias por Mês</h3>
-            <div className="flex items-center space-x-4 text-sm">
+        <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 mb-4 sm:mb-6">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900">Auditorias por Mês</h3>
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600">
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-blue-500 rounded-full" />
-                <span className="text-gray-600">Planejadas</span>
+                <span>Planejadas</span>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-green-500 rounded-full" />
-                <span className="text-gray-600">Concluídas</span>
+                <span>Concluídas</span>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-red-500 rounded-full" />
-                <span className="text-gray-600">Canceladas</span>
+                <span>Canceladas</span>
               </div>
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={auditsByMonth}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="planned" fill="#3b82f6" name="Planejadas" />
-              <Bar dataKey="completed" fill="#22c55e" name="Concluídas" />
-              <Bar dataKey="cancelled" fill="#ef4444" name="Canceladas" />
-            </BarChart>
-          </ResponsiveContainer>
+          <div className="h-64 sm:h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={auditsByMonth} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis 
+                  dataKey="month" 
+                  fontSize={12}
+                  tick={{ fontSize: 12 }}
+                />
+                <YAxis 
+                  fontSize={12}
+                  tick={{ fontSize: 12 }}
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    fontSize: '12px',
+                    padding: '8px',
+                    borderRadius: '8px',
+                    border: '1px solid #e5e7eb'
+                  }}
+                />
+                <Bar dataKey="planned" fill="#3b82f6" name="Planejadas" />
+                <Bar dataKey="completed" fill="#22c55e" name="Concluídas" />
+                <Bar dataKey="cancelled" fill="#ef4444" name="Canceladas" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
         {/* Não Conformidades por Tipo */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">Não Conformidades por Tipo</h3>
-            <span className="text-sm text-gray-500">Total: 100</span>
+        <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4 sm:mb-6">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900">Não Conformidades por Tipo</h3>
+            <span className="text-xs sm:text-sm text-gray-500">Total: 100</span>
           </div>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={nonConformitiesByType}
-                cx="50%"
-                cy="50%"
-                innerRadius={60}
-                outerRadius={120}
-                paddingAngle={5}
-                dataKey="value"
-              >
-                {nonConformitiesByType.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="mt-4 grid grid-cols-2 gap-2">
+          <div className="h-64 sm:h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+                <Pie
+                  data={nonConformitiesByType}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={40}
+                  outerRadius={80}
+                  paddingAngle={5}
+                  dataKey="value"
+                >
+                  {nonConformitiesByType.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  contentStyle={{ 
+                    fontSize: '12px',
+                    padding: '8px',
+                    borderRadius: '8px',
+                    border: '1px solid #e5e7eb'
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
             {nonConformitiesByType.map((item, index) => (
               <div key={index} className="flex items-center space-x-2">
                 <div 
-                  className="w-3 h-3 rounded-full" 
+                  className="w-3 h-3 rounded-full flex-shrink-0" 
                   style={{ backgroundColor: item.color }}
                 />
-                <span className="text-sm text-gray-600">{item.name}</span>
-                <span className="text-sm font-medium text-gray-900">{item.value}</span>
+                <span className="text-xs sm:text-sm text-gray-600 truncate">{item.name}</span>
+                <span className="text-xs sm:text-sm font-medium text-gray-900">{item.value}</span>
               </div>
             ))}
           </div>
@@ -272,84 +276,50 @@ export function Dashboard() {
       </div>
 
       {/* Additional Charts */}
-      <div className="grid grid-cols-1 gap-6">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6">
         {/* Taxa de Conformidade ao Longo do Tempo */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">Taxa de Conformidade</h3>
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
+        <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4 sm:mb-6">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900">Taxa de Conformidade</h3>
+            <div className="flex items-center space-x-2 text-xs sm:text-sm text-gray-600">
               <div className="w-3 h-3 bg-blue-500 rounded-full" />
               <span>Meta: 90%</span>
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={complianceOverTime}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis domain={[80, 95]} />
-              <Tooltip formatter={(value) => [`${value}%`, 'Conformidade']} />
-              <Area 
-                type="monotone" 
-                dataKey="compliance" 
-                stroke="#3b82f6" 
-                fill="#3b82f6" 
-                fillOpacity={0.1}
-              />
-              <Line 
-                type="monotone" 
-                dataKey="compliance" 
-                stroke="#3b82f6" 
-                strokeWidth={2}
-                dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="bg-gradient-to-r from-white to-gray-50 rounded-xl border border-gray-200/60 p-6 shadow-sm">
-        <h3 className="text-lg font-bold text-gray-900 mb-6">Ações Rápidas</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <button className="flex items-center space-x-4 p-5 border border-gray-200/60 rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 hover:border-blue-200 hover:shadow-md transition-all duration-200 text-left group hover:scale-105 active:scale-95">
-            <div className="w-12 h-12 bg-gradient-to-r from-blue-100 to-blue-200 rounded-xl flex items-center justify-center shadow-sm group-hover:shadow-md transition-all duration-200">
-              <Calendar className="w-6 h-6 text-blue-600" />
-            </div>
-            <div>
-              <div className="font-bold text-gray-900 group-hover:text-blue-700 transition-colors duration-200">Nova Auditoria</div>
-              <div className="text-sm text-gray-500 group-hover:text-blue-600 transition-colors duration-200">Agendar auditoria</div>
-            </div>
-          </button>
-          
-          <button className="flex items-center space-x-4 p-5 border border-gray-200/60 rounded-xl hover:bg-gradient-to-r hover:from-red-50 hover:to-red-100 hover:border-red-200 hover:shadow-md transition-all duration-200 text-left group hover:scale-105 active:scale-95">
-            <div className="w-12 h-12 bg-gradient-to-r from-red-100 to-red-200 rounded-xl flex items-center justify-center shadow-sm group-hover:shadow-md transition-all duration-200">
-              <AlertTriangle className="w-6 h-6 text-red-600" />
-            </div>
-            <div>
-              <div className="font-bold text-gray-900 group-hover:text-red-700 transition-colors duration-200">Registrar NC</div>
-              <div className="text-sm text-gray-500 group-hover:text-red-600 transition-colors duration-200">Nova não conformidade</div>
-            </div>
-          </button>
-          
-          <button className="flex items-center space-x-4 p-5 border border-gray-200/60 rounded-xl hover:bg-gradient-to-r hover:from-green-50 hover:to-green-100 hover:border-green-200 hover:shadow-md transition-all duration-200 text-left group hover:scale-105 active:scale-95">
-            <div className="w-12 h-12 bg-gradient-to-r from-green-100 to-green-200 rounded-xl flex items-center justify-center shadow-sm group-hover:shadow-md transition-all duration-200">
-              <CheckCircle className="w-6 h-6 text-green-600" />
-            </div>
-            <div>
-              <div className="font-bold text-gray-900 group-hover:text-green-700 transition-colors duration-200">Novo Checklist</div>
-              <div className="text-sm text-gray-500 group-hover:text-green-600 transition-colors duration-200">Criar checklist</div>
-            </div>
-          </button>
-          
-          <button className="flex items-center space-x-4 p-5 border border-gray-200/60 rounded-xl hover:bg-gradient-to-r hover:from-purple-50 hover:to-purple-100 hover:border-purple-200 hover:shadow-md transition-all duration-200 text-left group hover:scale-105 active:scale-95">
-            <div className="w-12 h-12 bg-gradient-to-r from-purple-100 to-purple-200 rounded-xl flex items-center justify-center shadow-sm group-hover:shadow-md transition-all duration-200">
-              <FileText className="w-6 h-6 text-purple-600" />
-            </div>
-            <div>
-              <div className="font-bold text-gray-900 group-hover:text-purple-700 transition-colors duration-200">Gerar Relatório</div>
-              <div className="text-sm text-gray-500 group-hover:text-purple-600 transition-colors duration-200">Relatório personalizado</div>
-            </div>
-          </button>
+          <div className="h-64 sm:h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={complianceOverTime} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis 
+                  dataKey="month" 
+                  fontSize={12}
+                  tick={{ fontSize: 12 }}
+                />
+                <YAxis 
+                  domain={[80, 95]} 
+                  fontSize={12}
+                  tick={{ fontSize: 12 }}
+                />
+                <Tooltip 
+                  formatter={(value) => [`${value}%`, 'Conformidade']} 
+                  contentStyle={{ 
+                    fontSize: '12px',
+                    padding: '8px',
+                    borderRadius: '8px',
+                    border: '1px solid #e5e7eb'
+                  }}
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="compliance" 
+                  stroke="#3b82f6" 
+                  fill="#3b82f6" 
+                  fillOpacity={0.1}
+                  strokeWidth={2}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
     </div>

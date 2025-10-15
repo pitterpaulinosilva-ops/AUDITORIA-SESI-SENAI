@@ -25,7 +25,7 @@ export function Layout({ children }: LayoutProps) {
   const { sidebarOpen, toggleSidebar } = useAuditProStore();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
       <Sidebar />
       
@@ -38,12 +38,12 @@ export function Layout({ children }: LayoutProps) {
       )}
       
       {/* Main Content */}
-      <div className={`transition-all duration-300 ${sidebarOpen ? 'lg:ml-64' : 'lg:ml-16'}`}>
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
         <Header />
         
         {/* Page Content */}
-        <main className="p-4 lg:p-6">
+        <main className="flex-1 p-3 sm:p-4 lg:p-6">
           <div className="max-w-7xl mx-auto">
             {children}
           </div>
