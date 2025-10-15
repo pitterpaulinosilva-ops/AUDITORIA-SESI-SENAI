@@ -52,18 +52,18 @@ export function Pagination({
 
   if (totalPages <= 1) {
     return (
-      <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6">
+      <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-white to-gray-50 border-t border-gray-200/60 rounded-b-xl shadow-sm">
         <div className="flex-1 flex justify-between sm:hidden">
-          <span className="text-sm text-gray-700">
+          <span className="text-sm text-gray-700 font-medium">
             {totalItems} item{totalItems !== 1 ? 's' : ''}
           </span>
         </div>
         <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
           <div>
             <p className="text-sm text-gray-700">
-              Mostrando <span className="font-medium">{startItem}</span> até{' '}
-              <span className="font-medium">{endItem}</span> de{' '}
-              <span className="font-medium">{totalItems}</span> resultado{totalItems !== 1 ? 's' : ''}
+              Mostrando <span className="font-bold text-blue-600">{startItem}</span> até{' '}
+              <span className="font-bold text-blue-600">{endItem}</span> de{' '}
+              <span className="font-bold text-blue-600">{totalItems}</span> resultado{totalItems !== 1 ? 's' : ''}
             </p>
           </div>
         </div>
@@ -72,23 +72,23 @@ export function Pagination({
   }
 
   return (
-    <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6">
+    <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-white to-gray-50 border-t border-gray-200/60 rounded-b-xl shadow-sm">
       {/* Mobile */}
       <div className="flex-1 flex justify-between sm:hidden">
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="relative inline-flex items-center px-4 py-2 text-sm font-bold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95"
         >
           Anterior
         </button>
-        <span className="text-sm text-gray-700 flex items-center">
-          Página {currentPage} de {totalPages}
+        <span className="text-sm text-gray-700 flex items-center font-medium">
+          Página <span className="font-bold text-blue-600 mx-1">{currentPage}</span> de <span className="font-bold text-blue-600 ml-1">{totalPages}</span>
         </span>
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="relative ml-3 inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="relative ml-3 inline-flex items-center px-4 py-2 text-sm font-bold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95"
         >
           Próxima
         </button>
@@ -96,20 +96,20 @@ export function Pagination({
 
       {/* Desktop */}
       <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-6">
           <p className="text-sm text-gray-700">
-            Mostrando <span className="font-medium">{startItem}</span> até{' '}
-            <span className="font-medium">{endItem}</span> de{' '}
-            <span className="font-medium">{totalItems}</span> resultado{totalItems !== 1 ? 's' : ''}
+            Mostrando <span className="font-bold text-blue-600">{startItem}</span> até{' '}
+            <span className="font-bold text-blue-600">{endItem}</span> de{' '}
+            <span className="font-bold text-blue-600">{totalItems}</span> resultado{totalItems !== 1 ? 's' : ''}
           </p>
           
           {onItemsPerPageChange && (
-            <div className="flex items-center space-x-2">
-              <label className="text-sm text-gray-700">Itens por página:</label>
+            <div className="flex items-center space-x-3">
+              <label className="text-sm text-gray-700 font-medium">Itens por página:</label>
               <select
                 value={itemsPerPage}
                 onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
-                className="border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="border border-gray-300 rounded-xl px-3 py-2 text-sm font-medium bg-white hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
               >
                 <option value={10}>10</option>
                 <option value={25}>25</option>
@@ -121,25 +121,25 @@ export function Pagination({
         </div>
 
         <div>
-          <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+          <nav className="relative z-0 inline-flex rounded-xl shadow-md bg-white border border-gray-200" aria-label="Pagination">
             {/* Primeira página */}
             <button
               onClick={() => onPageChange(1)}
               disabled={currentPage === 1}
-              className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="relative inline-flex items-center px-3 py-2 rounded-l-xl border-r border-gray-200 bg-white text-sm font-medium text-gray-500 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95"
             >
               <span className="sr-only">Primeira página</span>
-              <ChevronsLeft className="h-5 w-5" />
+              <ChevronsLeft className="h-4 w-4" />
             </button>
 
             {/* Página anterior */}
             <button
               onClick={() => onPageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="relative inline-flex items-center px-3 py-2 border-r border-gray-200 bg-white text-sm font-medium text-gray-500 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95"
             >
               <span className="sr-only">Página anterior</span>
-              <ChevronLeft className="h-5 w-5" />
+              <ChevronLeft className="h-4 w-4" />
             </button>
 
             {/* Números das páginas */}
@@ -148,7 +148,7 @@ export function Pagination({
                 return (
                   <span
                     key={`dots-${index}`}
-                    className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700"
+                    className="relative inline-flex items-center px-4 py-2 border-r border-gray-200 bg-white text-sm font-medium text-gray-700"
                   >
                     ...
                   </span>
@@ -162,10 +162,10 @@ export function Pagination({
                 <button
                   key={pageNumber}
                   onClick={() => onPageChange(pageNumber)}
-                  className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                  className={`relative inline-flex items-center px-4 py-2 border-r border-gray-200 text-sm font-bold transition-all duration-200 hover:scale-105 active:scale-95 ${
                     isActive
-                      ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
-                      : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                      ? 'z-10 bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 shadow-sm'
+                      : 'bg-white text-gray-500 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:text-gray-700'
                   }`}
                 >
                   {pageNumber}
@@ -177,20 +177,20 @@ export function Pagination({
             <button
               onClick={() => onPageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="relative inline-flex items-center px-3 py-2 border-r border-gray-200 bg-white text-sm font-medium text-gray-500 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95"
             >
               <span className="sr-only">Próxima página</span>
-              <ChevronRight className="h-5 w-5" />
+              <ChevronRight className="h-4 w-4" />
             </button>
 
             {/* Última página */}
             <button
               onClick={() => onPageChange(totalPages)}
               disabled={currentPage === totalPages}
-              className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="relative inline-flex items-center px-3 py-2 rounded-r-xl bg-white text-sm font-medium text-gray-500 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95"
             >
               <span className="sr-only">Última página</span>
-              <ChevronsRight className="h-5 w-5" />
+              <ChevronsRight className="h-4 w-4" />
             </button>
           </nav>
         </div>
