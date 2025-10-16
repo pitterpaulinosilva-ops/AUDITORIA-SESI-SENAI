@@ -324,7 +324,7 @@ export function Settings() {
             </label>
             <button
               type="submit"
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center space-x-2"
+              className="btn-primary"
             >
               <Plus className="w-4 h-4" />
               <span>{editingAuditor ? 'Atualizar' : 'Adicionar'}</span>
@@ -430,7 +430,7 @@ export function Settings() {
           <div className="flex items-end space-x-2">
             <button
               type="submit"
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center space-x-2"
+              className="btn-primary"
             >
               <Plus className="w-4 h-4" />
               <span>{editingSector ? 'Atualizar' : 'Adicionar'}</span>
@@ -548,7 +548,7 @@ export function Settings() {
           <div className="md:col-span-2 flex space-x-2">
             <button
               type="submit"
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center space-x-2"
+              className="btn-primary"
             >
               <Plus className="w-4 h-4" />
               <span>{editingSubprocess ? 'Atualizar' : 'Adicionar'}</span>
@@ -658,7 +658,7 @@ export function Settings() {
           <div className="md:col-span-2 flex space-x-2">
             <button
               type="submit"
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center space-x-2"
+              className="btn-primary"
             >
               <Plus className="w-4 h-4" />
               <span>{editingProcess ? 'Atualizar' : 'Adicionar'}</span>
@@ -764,7 +764,7 @@ export function Settings() {
           <div className="md:col-span-2 flex space-x-2">
             <button
               type="submit"
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center space-x-2"
+              className="btn-primary"
             >
               <Plus className="w-4 h-4" />
               <span>{editingAuditType ? 'Atualizar' : 'Adicionar'}</span>

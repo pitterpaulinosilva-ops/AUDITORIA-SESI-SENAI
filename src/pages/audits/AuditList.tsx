@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Grid, List, Search } from 'lucide-react';
+import { Plus, LayoutGrid, List, Search } from 'lucide-react';
 import { useAuditProStore } from '../../store';
 import { FilterBar, AuditFilters } from '../../components/FilterBar';
 import { Pagination } from '../../components/Pagination';
@@ -213,7 +213,7 @@ export function AuditList() {
               }`}
               title="Visualização em cards"
             >
-              <Grid className="h-4 w-4" />
+              <LayoutGrid className="h-4 w-4" />
             </button>
           </div>
           

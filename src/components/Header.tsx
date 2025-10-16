@@ -29,7 +29,7 @@ export function Header() {
   const [showNotifications, setShowNotifications] = useState(false);
 
   // Obter nome da página atual
-  const currentPageName = pageNames[location.pathname] || 'AuditPro';
+  const currentPageName = pageNames[location.pathname] || 'Audita Pro';
 
   // Função para obter as classes de cor baseadas na rota atual
   const getModuleColorClasses = () => {
@@ -99,7 +99,8 @@ export function Header() {
             <img 
               src="/sesi-senai-logo.png" 
               alt="SESI SENAI" 
-              className="h-6 sm:h-8 w-auto object-contain"
+              className="h-6 sm:h-8 w-auto object-contain cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={() => window.location.href = '/'}
             />
             <div className="flex items-center mt-1">
               <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border shadow-sm ${getModuleColorClasses()}`}>

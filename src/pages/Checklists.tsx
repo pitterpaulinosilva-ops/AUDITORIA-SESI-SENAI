@@ -5,13 +5,13 @@ import {
   Search, 
   Filter, 
   Eye, 
-  Edit, 
+  Edit3, 
   Copy, 
-  Power, 
-  PowerOff, 
+  ToggleRight, 
+  ToggleLeft, 
   Trash2,
-  Calendar,
-  User,
+  CalendarDays,
+  UserCheck,
   Tag,
   ChevronLeft,
   ChevronRight
@@ -113,7 +113,7 @@ const ChecklistsPage: React.FC = () => {
         </div>
         <button
           onClick={() => navigate('/checklists/new')}
-          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          className="btn-primary"
         >
           <Plus className="w-4 h-4" />
           Novo Checklist
@@ -141,7 +141,7 @@ const ChecklistsPage: React.FC = () => {
             {/* Botão de filtros */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="btn-secondary"
             >
               <Filter className="w-4 h-4" />
               Filtros
@@ -287,7 +287,7 @@ const ChecklistsPage: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <Calendar className="w-4 h-4 text-gray-400 mr-2" />
+                      <CalendarDays className="w-4 h-4 text-gray-400 mr-2" />
                       <span className="text-sm text-gray-900">
                         {format(new Date(checklist.createdAt), 'dd/MM/yyyy', { locale: ptBR })}
                       </span>
@@ -295,7 +295,7 @@ const ChecklistsPage: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <User className="w-4 h-4 text-gray-400 mr-2" />
+                      <UserCheck className="w-4 h-4 text-gray-400 mr-2" />
                       <span className="text-sm text-gray-900">
                         {checklist.createdBy}
                       </span>
@@ -315,7 +315,7 @@ const ChecklistsPage: React.FC = () => {
                         className="text-yellow-600 hover:text-yellow-900 p-1 rounded"
                         title="Editar"
                       >
-                        <Edit className="w-4 h-4" />
+                        <Edit3 className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleDuplicate(checklist)}
@@ -334,9 +334,9 @@ const ChecklistsPage: React.FC = () => {
                         title={checklist.isActive ? 'Desativar' : 'Ativar'}
                       >
                         {checklist.isActive ? (
-                          <PowerOff className="w-4 h-4" />
+                          <ToggleLeft className="w-4 h-4" />
                         ) : (
-                          <Power className="w-4 h-4" />
+                          <ToggleRight className="w-4 h-4" />
                         )}
                       </button>
                       <button

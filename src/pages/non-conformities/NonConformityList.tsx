@@ -1,120 +1,89 @@
-import React, { useState, useMemo } from 'react'
-import { Search, Filter, FileText, AlertTriangle, Calendar, MapPin, User, ExternalLink } from 'lucide-react'
+import { useState } from 'react';
+import { 
+  ShieldAlert, 
+  ExternalLink,
+  Check,
+  ChevronLeft,
+  ChevronRight
+} from 'lucide-react';
 import { useAuditProStore } from "../../store";
-import { NonConformity, Audit, NonConformitySeverity } from '../../types'
-import { NonConformityCard } from '../../components/non-conformities/NonConformityCard'
-import { NonConformityFilters } from '../../components/non-conformities/NonConformityFilters'
-import { SeverityBadge } from '../../components/non-conformities/SeverityBadge'
-import { EPAButton } from '../../components/non-conformities/EPAButton'
-
-interface GroupedNonConformities {
-  audit: Audit
-  nonConformities: NonConformity[]
-}
+import { NonConformitySeverity } from '../../types'
+import { format } from 'date-fns';
 
 export function NonConformityList() {
-  const { nonConformities, audits } = useAuditProStore()
-  const [searchTerm, setSearchTerm] = useState('')
-  const [showFilters, setShowFilters] = useState(false)
-  const [filters, setFilters] = useState({
-    auditId: '',
-    severity: '' as NonConformitySeverity | '',
-    status: '',
-    category: '',
-    dateRange: { start: '', end: '' }
-  })
-  const [expandedAudits, setExpandedAudits] = useState<Set<string>>(new Set())
+  const { audits, nonConformities, updateNonConformity } = useAuditProStore();
+  
+  // Estados para filtros e paginação
+  const [ncFilters, setNcFilters] = useState({
+    epaStatus: 'all', // 'all', 'pending', 'opened'
+    severity: 'all', // 'all', 'critical', 'high', 'medium', 'low'
+    sector: 'all' // 'all' ou nome do setor
+  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
-  // Agrupar não conformidades por auditoria
-  const groupedNonConformities = useMemo(() => {
-    const groups: GroupedNonConformities[] = []
-    
-    audits.forEach(audit => {
-      if (audit.nonConformities && audit.nonConformities.length > 0) {
-        let filteredNCs: NonConformity[] = audit.nonConformities.filter((nc): nc is NonConformity => typeof nc !== 'string')
+  // Funções para filtros e paginação
+  const getFilteredNonConformities = () => {
+    return nonConformities.filter(nc => {
+      // Filtro por status EPA
+      if (ncFilters.epaStatus === 'pending' && nc.epaOpened) return false;
+      if (ncFilters.epaStatus === 'opened' && !nc.epaOpened) return false;
 
-        // Aplicar filtros
-        if (searchTerm) {
-          filteredNCs = filteredNCs.filter(nc =>
-            nc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            nc.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            nc.category.toLowerCase().includes(searchTerm.toLowerCase())
-          )
-        }
+      // Filtro por severidade
+      if (ncFilters.severity !== 'all' && nc.severity !== ncFilters.severity) return false;
 
-        if (filters.severity) {
-          filteredNCs = filteredNCs.filter(nc => nc.severity === filters.severity)
-        }
-
-        if (filters.status) {
-          filteredNCs = filteredNCs.filter(nc => nc.status === filters.status)
-        }
-
-        if (filters.category) {
-          filteredNCs = filteredNCs.filter(nc => 
-            nc.category.toLowerCase().includes(filters.category.toLowerCase())
-          )
-        }
-
-        if (filters.dateRange.start) {
-          filteredNCs = filteredNCs.filter(nc => 
-            new Date(nc.createdAt) >= new Date(filters.dateRange.start)
-          )
-        }
-
-        if (filters.dateRange.end) {
-          filteredNCs = filteredNCs.filter(nc => 
-            new Date(nc.createdAt) <= new Date(filters.dateRange.end)
-          )
-        }
-
-        if (filteredNCs.length > 0) {
-          groups.push({
-            audit,
-            nonConformities: filteredNCs
-          })
-        }
+      // Filtro por setor
+      if (ncFilters.sector !== 'all') {
+        const audit = audits.find(a => a.id === nc.auditId);
+        if (!audit || audit.department !== ncFilters.sector) return false;
       }
-    })
 
-    return groups
-  }, [audits, searchTerm, filters])
+      return true;
+    });
+  };
 
-  const totalNonConformities = useMemo(() => {
-    return groupedNonConformities.reduce((total, group) => total + group.nonConformities.length, 0)
-  }, [groupedNonConformities])
+  const getPaginatedNonConformities = () => {
+    const filtered = getFilteredNonConformities();
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return {
+      data: filtered.slice(startIndex, endIndex),
+      total: filtered.length,
+      totalPages: Math.ceil(filtered.length / itemsPerPage)
+    };
+  };
 
-  const severityStats = useMemo(() => {
-    const stats = {
-      critical: 0,
-      high: 0,
-      medium: 0,
-      low: 0
+  const handleEpaStatusToggle = (ncId: string) => {
+    const nc = nonConformities.find(n => n.id === ncId);
+    if (nc) {
+      updateNonConformity(ncId, {
+        ...nc,
+        epaOpened: !nc.epaOpened,
+        epaOpenedAt: !nc.epaOpened ? new Date() : undefined,
+        epaOpenedBy: !nc.epaOpened ? 'Usuário Atual' : undefined
+      });
     }
+  };
 
-    groupedNonConformities.forEach(group => {
-      group.nonConformities.forEach(nc => {
-        stats[nc.severity]++
-      })
-    })
-
-    return stats
-  }, [groupedNonConformities])
-
-  const toggleAuditExpansion = (auditId: string) => {
-    const newExpanded = new Set(expandedAudits)
-    if (newExpanded.has(auditId)) {
-      newExpanded.delete(auditId)
-    } else {
-      newExpanded.add(auditId)
+  const getSeverityColor = (severity: NonConformitySeverity) => {
+    switch (severity) {
+      case NonConformitySeverity.CRITICAL: return 'text-red-600 bg-red-50';
+      case NonConformitySeverity.HIGH: return 'text-orange-600 bg-orange-50';
+      case NonConformitySeverity.MEDIUM: return 'text-yellow-600 bg-yellow-50';
+      case NonConformitySeverity.LOW: return 'text-green-600 bg-green-50';
+      default: return 'text-gray-600 bg-gray-50';
     }
-    setExpandedAudits(newExpanded)
-  }
+  };
 
-  const exportReport = () => {
-    // Implementar exportação de relatório
-    console.log('Exportando relatório de não conformidades...')
-  }
+  const getSeverityLabel = (severity: NonConformitySeverity) => {
+    switch (severity) {
+      case NonConformitySeverity.CRITICAL: return 'Crítica';
+      case NonConformitySeverity.HIGH: return 'Alta';
+      case NonConformitySeverity.MEDIUM: return 'Média';
+      case NonConformitySeverity.LOW: return 'Baixa';
+      default: return severity;
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -123,167 +92,210 @@ export function NonConformityList() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Não Conformidades</h1>
           <p className="text-gray-600">
-            {totalNonConformities} não conformidade{totalNonConformities !== 1 ? 's' : ''} encontrada{totalNonConformities !== 1 ? 's' : ''}
+            Gerenciamento completo das não conformidades identificadas
           </p>
         </div>
-        
-        <div className="flex flex-col sm:flex-row gap-2">
-          <button
-            onClick={exportReport}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-          >
-            <FileText className="w-4 h-4" />
-            Exportar Relatório
-          </button>
-        </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-            <span className="text-sm font-medium text-gray-600">Críticas</span>
-          </div>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{severityStats.critical}</p>
-        </div>
-        
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
-            <span className="text-sm font-medium text-gray-600">Altas</span>
-          </div>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{severityStats.high}</p>
-        </div>
-        
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-            <span className="text-sm font-medium text-gray-600">Médias</span>
-          </div>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{severityStats.medium}</p>
-        </div>
-        
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-            <span className="text-sm font-medium text-gray-600">Baixas</span>
-          </div>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{severityStats.low}</p>
-        </div>
-      </div>
-
-      {/* Search and Filters */}
-      <div className="bg-white p-4 rounded-lg border border-gray-200">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <input
-              type="text"
-              placeholder="Buscar não conformidades..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
+      {/* Seção de Não Conformidades Encontradas */}
+      <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <h3 className="text-lg font-semibold text-gray-900">Não Conformidades Encontradas</h3>
           
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-              showFilters 
-                ? 'bg-blue-100 text-blue-700 border border-blue-200' 
-                : 'bg-gray-100 text-gray-700 border border-gray-200'
-            }`}
-          >
-            <Filter className="w-4 h-4" />
-            Filtros
-          </button>
+          {/* Filtros */}
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Filtro Status EPA */}
+            <select
+              value={ncFilters.epaStatus}
+              onChange={(e) => {
+                setNcFilters(prev => ({ ...prev, epaStatus: e.target.value }));
+                setCurrentPage(1);
+              }}
+              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">Todos Status EPA</option>
+              <option value="pending">Pendente EPA</option>
+              <option value="opened">Aberta no EPA</option>
+            </select>
+
+            {/* Filtro Severidade */}
+            <select
+              value={ncFilters.severity}
+              onChange={(e) => {
+                setNcFilters(prev => ({ ...prev, severity: e.target.value }));
+                setCurrentPage(1);
+              }}
+              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">Todas Severidades</option>
+              <option value={NonConformitySeverity.CRITICAL}>Crítica</option>
+              <option value={NonConformitySeverity.HIGH}>Alta</option>
+              <option value={NonConformitySeverity.MEDIUM}>Média</option>
+              <option value={NonConformitySeverity.LOW}>Baixa</option>
+            </select>
+
+            {/* Filtro Setor */}
+            <select
+              value={ncFilters.sector}
+              onChange={(e) => {
+                setNcFilters(prev => ({ ...prev, sector: e.target.value }));
+                setCurrentPage(1);
+              }}
+              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">Todos Setores</option>
+              {Array.from(new Set(audits.map(a => a.department).filter(Boolean))).map(dept => (
+                <option key={dept} value={dept}>{dept}</option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        {showFilters && (
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <NonConformityFilters
-              filters={filters}
-              onFiltersChange={setFilters}
-              audits={audits}
-            />
+        {/* Tabela de Não Conformidades */}
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  ID / Auditoria
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Descrição
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Severidade
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Data
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Setor
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status EPA
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Ações
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {getPaginatedNonConformities().data.map((nc) => {
+                const audit = audits.find(a => a.id === nc.auditId);
+                return (
+                  <tr key={nc.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">
+                        {nc.id.slice(-8)}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {audit?.title || 'Auditoria não encontrada'}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-900 max-w-xs truncate">
+                        {nc.title}
+                      </div>
+                      <div className="text-sm text-gray-500 max-w-xs truncate">
+                        {nc.description}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getSeverityColor(nc.severity)}`}>
+                        {getSeverityLabel(nc.severity)}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {format(new Date(nc.identifiedAt || nc.createdAt), 'dd/MM/yyyy')}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {audit?.department || 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        nc.epaOpened 
+                          ? 'text-green-600 bg-green-50' 
+                          : 'text-orange-600 bg-orange-50'
+                      }`}>
+                        {nc.epaOpened ? 'Aberta' : 'Pendente'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex items-center space-x-2">
+                        {/* Botão Abrir no EPA */}
+                        <a
+                          href="https://sistemafiea.sysepa.com.br/epa/qualidade_ocorrencia_processo_1.php"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center px-3 py-1 border border-blue-300 text-blue-700 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors duration-200"
+                          title="Abrir no Sistema EPA"
+                        >
+                          <ExternalLink className="h-4 w-4 mr-1" />
+                          EPA
+                        </a>
+                        
+                        {/* Toggle Status EPA */}
+                        <button
+                          onClick={() => handleEpaStatusToggle(nc.id)}
+                          className={`inline-flex items-center px-3 py-1 border rounded-md transition-colors duration-200 ${
+                            nc.epaOpened
+                              ? 'border-green-300 text-green-700 bg-green-50 hover:bg-green-100'
+                              : 'border-gray-300 text-gray-700 bg-gray-50 hover:bg-gray-100'
+                          }`}
+                          title={nc.epaOpened ? 'Marcar como pendente' : 'Marcar como aberta no EPA'}
+                        >
+                          <Check className="h-4 w-4 mr-1" />
+                          {nc.epaOpened ? 'Aberta' : 'Marcar'}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Paginação */}
+        {getPaginatedNonConformities().totalPages > 1 && (
+          <div className="flex items-center justify-between mt-6">
+            <div className="text-sm text-gray-700">
+              Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, getPaginatedNonConformities().total)} de {getPaginatedNonConformities().total} resultados
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ChevronLeft className="h-4 w-4 mr-1" />
+                Anterior
+              </button>
+              
+              <span className="text-sm text-gray-700">
+                Página {currentPage} de {getPaginatedNonConformities().totalPages}
+              </span>
+              
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, getPaginatedNonConformities().totalPages))}
+                disabled={currentPage === getPaginatedNonConformities().totalPages}
+                className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Próxima
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </button>
+            </div>
           </div>
         )}
-      </div>
 
-      {/* Non-Conformities List */}
-      <div className="space-y-6">
-        {groupedNonConformities.length === 0 ? (
-          <div className="bg-white p-8 rounded-lg border border-gray-200 text-center">
-            <AlertTriangle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Nenhuma não conformidade encontrada
-            </h3>
-            <p className="text-gray-600">
-              {searchTerm || Object.values(filters).some(f => f !== '' && (typeof f !== 'object' || Object.values(f).some(v => v !== '')))
-                ? 'Tente ajustar os filtros de busca.'
-                : 'As não conformidades aparecerão aqui conforme forem identificadas nas auditorias.'}
-            </p>
+        {/* Mensagem quando não há dados */}
+        {getPaginatedNonConformities().data.length === 0 && (
+          <div className="text-center py-8">
+            <ShieldAlert className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-500">Nenhuma não conformidade encontrada com os filtros aplicados.</p>
           </div>
-        ) : (
-          groupedNonConformities.map((group) => (
-            <div key={group.audit.id} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-              {/* Audit Header */}
-              <div 
-                className="p-4 bg-gray-50 border-b border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
-                onClick={() => toggleAuditExpansion(group.audit.id)}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        {group.audit.title}
-                      </h3>
-                      <span className="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                        {group.nonConformities.length} NC{group.nonConformities.length !== 1 ? 's' : ''}
-                      </span>
-                    </div>
-                    
-                    <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-4 h-4" />
-                        {new Date(group.audit.plannedStartDate).toLocaleDateString('pt-BR')}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <MapPin className="w-4 h-4" />
-                        {group.audit.location}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <User className="w-4 h-4" />
-                        {group.audit.auditor}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <EPAButton />
-                    <button className="text-gray-400 hover:text-gray-600">
-                      {expandedAudits.has(group.audit.id) ? '−' : '+'}
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Non-Conformities */}
-              {expandedAudits.has(group.audit.id) && (
-                <div className="divide-y divide-gray-200">
-                  {group.nonConformities.map((nonConformity) => (
-                    <NonConformityCard
-                      key={nonConformity.id}
-                      nonConformity={nonConformity}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          ))
         )}
       </div>
     </div>
-  )
+  );
 }

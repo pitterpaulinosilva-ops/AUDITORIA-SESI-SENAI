@@ -3,13 +3,13 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { 
   Menu, 
   X, 
-  LayoutDashboard, 
-  ClipboardCheck, 
-  CheckSquare, 
-  AlertCircle, 
-  CalendarDays, 
-  BarChart2, 
-  Settings,
+  Gauge, 
+  Shield, 
+  ListChecks, 
+  AlertOctagon, 
+  Calendar, 
+  BarChart3, 
+  Cog,
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
@@ -19,49 +19,49 @@ const navigationItems = [
   { 
     name: 'Dashboard', 
     href: '/', 
-    icon: LayoutDashboard,
+    icon: Gauge,
     description: 'Visão geral e KPIs',
     color: 'blue'
   },
   { 
     name: 'Auditorias', 
     href: '/audits', 
-    icon: ClipboardCheck,
+    icon: Shield,
     description: 'Gestão de auditorias',
     color: 'emerald'
   },
   { 
     name: 'Checklists', 
     href: '/checklists', 
-    icon: CheckSquare,
+    icon: ListChecks,
     description: 'Editor de checklists',
     color: 'purple'
   },
   { 
     name: 'Não Conformidades', 
     href: '/non-conformities', 
-    icon: AlertCircle,
+    icon: AlertOctagon,
     description: 'Gestão de NCs',
     color: 'orange'
   },
   { 
     name: 'Planejamento', 
     href: '/planning', 
-    icon: CalendarDays,
+    icon: Calendar,
     description: 'Calendário e eventos',
     color: 'indigo'
   },
   { 
     name: 'Relatórios', 
     href: '/reports', 
-    icon: BarChart2,
+    icon: BarChart3,
     description: 'Geração de relatórios',
     color: 'teal'
   },
   { 
     name: 'Configurações', 
     href: '/settings', 
-    icon: Settings,
+    icon: Cog,
     description: 'Configurações do sistema',
     color: 'gray'
   }
@@ -91,12 +91,12 @@ export function Sidebar() {
             <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden bg-white shadow-sm border border-gray-100">
               <img 
                 src="/logo.png" 
-                alt="AuditPro Logo" 
+                alt="Audita Pro Logo" 
                 className="w-6 h-6 object-contain"
               />
             </div>
             <div>
-              <h1 className="text-lg font-semibold text-gray-900">AuditPro</h1>
+              <h1 className="text-lg font-semibold text-gray-900">Audita Pro</h1>
               <p className="text-xs text-gray-500">Sistema de Auditoria</p>
             </div>
           </div>

@@ -1,5 +1,5 @@
 import React from 'react'
-import { AlertTriangle, AlertCircle, Info, CheckCircle } from 'lucide-react'
+import { ShieldAlert, AlertOctagon, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { NonConformitySeverity } from '../../types'
 
 interface SeverityBadgeProps {
@@ -17,7 +17,7 @@ export function SeverityBadge({ severity, showIcon = true, size = 'md' }: Severi
           bgColor: 'bg-red-100',
           textColor: 'text-red-800',
           borderColor: 'border-red-200',
-          icon: AlertTriangle
+          icon: ShieldAlert
         }
       case 'high':
         return {
@@ -25,7 +25,7 @@ export function SeverityBadge({ severity, showIcon = true, size = 'md' }: Severi
           bgColor: 'bg-orange-100',
           textColor: 'text-orange-800',
           borderColor: 'border-orange-200',
-          icon: AlertCircle
+          icon: AlertOctagon
         }
       case 'medium':
         return {
@@ -33,7 +33,7 @@ export function SeverityBadge({ severity, showIcon = true, size = 'md' }: Severi
           bgColor: 'bg-yellow-100',
           textColor: 'text-yellow-800',
           borderColor: 'border-yellow-200',
-          icon: Info
+          icon: AlertCircle
         }
       case 'low':
         return {
@@ -41,7 +41,7 @@ export function SeverityBadge({ severity, showIcon = true, size = 'md' }: Severi
           bgColor: 'bg-green-100',
           textColor: 'text-green-800',
           borderColor: 'border-green-200',
-          icon: CheckCircle
+          icon: CheckCircle2
         }
       default:
         return {
@@ -49,7 +49,7 @@ export function SeverityBadge({ severity, showIcon = true, size = 'md' }: Severi
           bgColor: 'bg-gray-100',
           textColor: 'text-gray-800',
           borderColor: 'border-gray-200',
-          icon: Info
+          icon: AlertCircle
         }
     }
   }

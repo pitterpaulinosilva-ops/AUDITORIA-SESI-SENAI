@@ -1,4 +1,4 @@
-// Tipos principais do sistema AuditPro
+// Tipos principais do sistema Audita Pro
 // Baseado na documentação técnica
 
 // Enums para status e tipos
@@ -241,6 +241,9 @@ export interface NonConformity extends BaseEntity {
   verifiedAt?: Date;
   verifiedBy?: string;
   isPatientRelated?: boolean; // Para compatibilidade com código existente
+  epaOpened?: boolean; // Controla se a NC já foi aberta no sistema EPA
+  epaOpenedAt?: Date; // Data de abertura no sistema EPA
+  epaOpenedBy?: string; // Usuário que marcou como aberta no EPA
 }
 
 // Enums para ação corretiva

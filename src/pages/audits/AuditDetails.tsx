@@ -107,7 +107,7 @@ export function AuditDetails() {
           {audit.status === AuditStatus.PLANNED && (
             <button
               onClick={() => navigate(`/audits/${audit.id}/execute`)}
-              className="flex items-center gap-2 px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700"
+              className="btn-success"
             >
               <Play className="h-4 w-4" />
               Executar

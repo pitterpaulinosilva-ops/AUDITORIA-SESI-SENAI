@@ -558,7 +558,7 @@ export const useAuditProStore = create<AuditProState>()(
       auditTypes: [],
       
       // Estado da UI
-      sidebarOpen: true,
+      sidebarOpen: false,
       currentView: 'dashboard',
       loading: false,
       error: null,
@@ -1089,7 +1089,7 @@ export const useAuditProStore = create<AuditProState>()(
           kpis: [],
           chartData: [],
           systemConfig: initialSystemConfig,
-          sidebarOpen: true,
+          sidebarOpen: false,
           currentView: 'dashboard',
           loading: false,
           error: null
@@ -1268,7 +1268,7 @@ export const useAuditProStore = create<AuditProState>()(
       }
     }),
     {
-      name: 'auditpro-storage',
+      name: 'auditapro-storage',
 
       partialize: (state) => ({
         audits: state.audits,

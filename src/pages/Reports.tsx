@@ -1,31 +1,31 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  BarChart3, 
-  FileText, 
-  AlertTriangle, 
+  Activity, 
+  FileBarChart, 
+  ShieldAlert, 
   TrendingUp, 
-  Settings, 
-  Calendar 
+  Settings2, 
+  CalendarCheck 
 } from 'lucide-react';
 
 const navigationItems = [
   {
     name: 'Dashboard',
     href: '/reports',
-    icon: BarChart3,
+    icon: Activity,
     description: 'Visão geral e KPIs principais'
   },
   {
     name: 'Auditorias',
     href: '/reports/audits',
-    icon: FileText,
+    icon: FileBarChart,
     description: 'Relatórios detalhados de auditorias'
   },
   {
     name: 'Não Conformidades',
     href: '/reports/non-conformities',
-    icon: AlertTriangle,
+    icon: ShieldAlert,
     description: 'Análise de não conformidades'
   },
   {
@@ -37,13 +37,13 @@ const navigationItems = [
   {
     name: 'Customizados',
     href: '/reports/custom',
-    icon: Settings,
+    icon: Settings2,
     description: 'Relatórios personalizados'
   },
   {
     name: 'Agendamentos',
     href: '/reports/schedule',
-    icon: Calendar,
+    icon: CalendarCheck,
     description: 'Configurar envios automáticos'
   }
 ];
@@ -67,7 +67,7 @@ export function Reports() {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center mb-2">
-            <BarChart3 className="h-8 w-8 text-blue-600 mr-3" />
+            <Activity className="h-8 w-8 text-blue-600 mr-3" />
             <h1 className="text-3xl font-bold text-gray-900">Módulo de Relatórios</h1>
           </div>
           <p className="text-gray-600">Análises e insights do sistema de auditoria</p>

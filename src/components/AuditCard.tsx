@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, User, Building, FileText, Eye, Edit, Play, X } from 'lucide-react';
+import { CalendarCheck, UserCheck, Building2, FileBarChart, Eye, Edit3, PlayCircle, XCircle } from 'lucide-react';
 
 import { AuditStatus, AuditType, ExecutionNote } from '../types';
 
@@ -76,7 +76,7 @@ export const AuditCard: React.FC<AuditCardProps> = ({
           {onView && (
             <button
               onClick={() => onView(id)}
-              className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors touch-manipulation"
+              className="btn-action btn-view w-8 h-8 sm:w-9 sm:h-9 touch-manipulation"
               title="Visualizar"
             >
               <Eye className="w-4 h-4" />
@@ -85,28 +85,28 @@ export const AuditCard: React.FC<AuditCardProps> = ({
           {onEdit && status !== AuditStatus.COMPLETED && (
             <button
               onClick={() => onEdit(id)}
-              className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors touch-manipulation"
+              className="btn-action btn-edit w-8 h-8 sm:w-9 sm:h-9 touch-manipulation"
               title="Editar"
             >
-              <Edit className="w-4 h-4" />
+              <Edit3 className="w-4 h-4" />
             </button>
           )}
           {onExecute && status === AuditStatus.PLANNED && (
             <button
               onClick={() => onExecute(id)}
-              className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors touch-manipulation"
+              className="btn-action text-orange-600 hover:text-orange-700 hover:bg-orange-50 w-8 h-8 sm:w-9 sm:h-9 touch-manipulation"
               title="Executar"
             >
-              <Play className="w-4 h-4" />
+              <PlayCircle className="w-4 h-4" />
             </button>
           )}
           {onCancel && status !== AuditStatus.COMPLETED && status !== AuditStatus.CANCELLED && (
             <button
               onClick={() => onCancel(id)}
-              className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors touch-manipulation"
+              className="btn-action btn-delete w-8 h-8 sm:w-9 sm:h-9 touch-manipulation"
               title="Cancelar"
             >
-              <X className="w-4 h-4" />
+              <XCircle className="w-4 h-4" />
             </button>
           )}
         </div>
@@ -114,19 +114,19 @@ export const AuditCard: React.FC<AuditCardProps> = ({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
         <div className="flex items-center text-sm text-gray-600">
-          <FileText className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />
+          <FileBarChart className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />
           <span className="truncate">{type}</span>
         </div>
         <div className="flex items-center text-sm text-gray-600">
-          <Building className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />
+          <Building2 className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />
           <span className="truncate">{sector}</span>
         </div>
         <div className="flex items-center text-sm text-gray-600">
-          <User className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />
+          <UserCheck className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />
           <span className="truncate">{auditor}</span>
         </div>
         <div className="flex items-center text-sm text-gray-600">
-          <Calendar className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />
+          <CalendarCheck className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />
           <span className="truncate">{scheduledDate.toLocaleDateString('pt-BR')}</span>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Calendar, MapPin, User, AlertTriangle, Clock, FileText, Camera, ExternalLink } from 'lucide-react'
+import { CalendarDays, MapPin, UserCheck, ShieldAlert, Timer, FileBarChart, Camera, ExternalLink, User, Calendar } from 'lucide-react'
 import { NonConformity, Audit, Evidence } from '../../types'
 import { SeverityBadge } from './SeverityBadge'
 import { EPAButton } from './EPAButton'
@@ -84,7 +84,7 @@ export function NonConformityCard({ nonConformity }: NonConformityCardProps) {
                 {getStatusText(nonConformity.status)}
               </span>
               <div className="flex items-center gap-1">
-                <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                <CalendarDays className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                 <span className="text-xs sm:text-sm">{formatDate(nonConformity.createdAt)}</span>
               </div>
             </div>
@@ -108,12 +108,12 @@ export function NonConformityCard({ nonConformity }: NonConformityCardProps) {
           </div>
           
           <div className="flex items-center gap-2 text-gray-600 min-w-0">
-            <User className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+            <UserCheck className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
             <span className="truncate">{nonConformity.identifiedBy}</span>
           </div>
           
           <div className="flex items-center gap-2 text-gray-600 min-w-0 sm:col-span-2 lg:col-span-1">
-            <FileText className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+            <FileBarChart className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
             <span className="truncate">{nonConformity.category}</span>
           </div>
         </div>
@@ -179,7 +179,7 @@ export function NonConformityCard({ nonConformity }: NonConformityCardProps) {
                   <div>
                     <h5 className="text-sm font-medium text-gray-900 mb-1">Prazo para Tratamento</h5>
                     <div className="flex items-center gap-2 text-sm text-gray-700">
-                      <Clock className="w-4 h-4 flex-shrink-0" />
+                      <Timer className="w-4 h-4 flex-shrink-0" />
                       {formatDate(nonConformity.dueDate)}
                     </div>
                   </div>

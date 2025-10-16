@@ -78,7 +78,7 @@ export function Pagination({
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="relative inline-flex items-center px-4 py-2 text-sm font-bold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95"
+          className="btn-nav"
         >
           Anterior
         </button>
@@ -88,7 +88,7 @@ export function Pagination({
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="relative ml-3 inline-flex items-center px-4 py-2 text-sm font-bold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95"
+          className="btn-nav ml-3"
         >
           Próxima
         </button>
@@ -126,7 +126,7 @@ export function Pagination({
             <button
               onClick={() => onPageChange(1)}
               disabled={currentPage === 1}
-              className="relative inline-flex items-center px-3 py-2 rounded-l-xl border-r border-gray-200 bg-white text-sm font-medium text-gray-500 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95"
+              className="btn-nav border-r border-gray-200"
             >
               <span className="sr-only">Primeira página</span>
               <ChevronsLeft className="h-4 w-4" />
@@ -136,7 +136,7 @@ export function Pagination({
             <button
               onClick={() => onPageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="relative inline-flex items-center px-3 py-2 border-r border-gray-200 bg-white text-sm font-medium text-gray-500 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95"
+              className="btn-nav border-r border-gray-200"
             >
               <span className="sr-only">Página anterior</span>
               <ChevronLeft className="h-4 w-4" />
@@ -177,7 +177,7 @@ export function Pagination({
             <button
               onClick={() => onPageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="relative inline-flex items-center px-3 py-2 border-r border-gray-200 bg-white text-sm font-medium text-gray-500 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95"
+              className="btn-nav border-r border-gray-200"
             >
               <span className="sr-only">Próxima página</span>
               <ChevronRight className="h-4 w-4" />
@@ -187,7 +187,7 @@ export function Pagination({
             <button
               onClick={() => onPageChange(totalPages)}
               disabled={currentPage === totalPages}
-              className="relative inline-flex items-center px-3 py-2 rounded-r-xl bg-white text-sm font-medium text-gray-500 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95"
+              className="btn-nav"
             >
               <span className="sr-only">Última página</span>
               <ChevronsRight className="h-4 w-4" />

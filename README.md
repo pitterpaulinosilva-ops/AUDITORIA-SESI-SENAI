@@ -1,4 +1,4 @@
-# AuditPro - Sistema de Auditoria Interna
+# Audita Pro - Sistema de Auditoria Interna
 
 Sistema completo de gestão de auditorias internas desenvolvido com React, TypeScript e Vite.
 
