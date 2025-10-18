@@ -48,6 +48,45 @@ export enum EvidenceType {
   NOTE = 'note'
 }
 
+// Tipos para Tags e Medidas de Avaliação
+export interface EvaluationMeasure {
+  id: number;
+  name: string;
+  weight: number;
+  isNeutral?: boolean; // para "Não se Aplica"
+}
+
+// Interface para requisito normativo
+export interface NormativeRequirement {
+  id: number;
+  code: string; // Ex: "R1"
+  description: string;
+}
+
+// Interface para seção normativa
+export interface NormativeSection {
+  id: number;
+  name: string;
+  requirements: NormativeRequirement[];
+}
+
+// Interface para categoria de checklist (antiga ChecklistTag)
+export interface ChecklistCategoryOld {
+  id: number;
+  name: string; // Ex: "Manual ONA 2022"
+  description?: string;
+  sections: NormativeSection[];
+  measures: EvaluationMeasure[]; // Mantém as medidas existentes
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Alias para compatibilidade
+export interface ChecklistTag extends ChecklistCategoryOld {
+  // Herda todas as propriedades de ChecklistCategoryOld
+  additionalProperty?: string; // Propriedade adicional para evitar interface vazia
+}
+
 // Interface base para entidades com ID
 export interface BaseEntity {
   id: string;
@@ -83,6 +122,7 @@ export interface ExecutionNote {
 
 // Interface para auditoria
 export interface Audit extends BaseEntity {
+  displayId?: string; // ID de exibição para compatibilidade com store
   title: string;
   description: string;
   type: AuditType | AuditTypeValue | string;
@@ -127,6 +167,7 @@ export interface Audit extends BaseEntity {
 // Interface para categoria de checklist
 export interface ChecklistCategory {
   id: string;
+  name: string;
   title: string;
   description?: string;
   weight: number;
@@ -213,6 +254,87 @@ export interface AuditTypeConfig {
   id: number;
   name: string;
   description: string;
+}
+
+// Tipos para importação de dados Excel
+export interface ImportResult<T> {
+  success: boolean;
+  data: T[];
+  errors: ImportError[];
+  duplicates: T[];
+  totalProcessed: number;
+  totalSuccess: number;
+  totalErrors: number;
+}
+
+export interface ImportError {
+  row: number;
+  field: string;
+  value: unknown;
+  message: string;
+}
+
+export interface ImportValidationResult {
+  isValid: boolean;
+  errors: ImportError[];
+}
+
+// Tipos específicos para cada modelo de importação
+export interface AuditorImportData {
+  nome: string;
+  email: string;
+  auditorLider: string; // "Sim" ou "Não"
+}
+
+export interface SectorImportData {
+  nomeDoSetor: string;
+}
+
+export interface SubprocessImportData {
+  nomeDoSubprocesso: string;
+  setor: string;
+}
+
+export interface ProcessImportData {
+  nomeDoProcesso: string;
+  setor: string;
+}
+
+export interface AuditTypeImportData {
+  nome: string;
+  descricao: string;
+}
+
+// Configurações para cada tipo de importação
+export interface ImportConfig {
+  type: 'auditores' | 'setores' | 'subprocessos' | 'processos' | 'tipos';
+  title: string;
+  description: string;
+  icon: string;
+  columns: ImportColumnConfig[];
+  exampleData: unknown[];
+  validationRules: ImportValidationRule[];
+}
+
+export interface ImportColumnConfig {
+  key: string;
+  label: string;
+  required: boolean;
+  type: 'text' | 'email' | 'select';
+  maxLength?: number;
+  options?: string[]; // Para campos select
+  example?: string;
+}
+
+export interface ImportValidationRule {
+  field: string;
+  type: 'required' | 'email' | 'unique' | 'exists' | 'maxLength' | 'select';
+  message: string;
+  options?: {
+    maxLength?: number;
+    validValues?: string[];
+    referenceField?: string; // Para validação de existência
+  };
 }
 
 // Interface para não conformidade
@@ -405,6 +527,57 @@ export interface SystemConfig {
     watermark: boolean;
     digitalSignature: boolean;
   };
+}
+
+// Tipos para Mapeamento de Requisitos Normativos
+export interface NormativeRequirement {
+  id: number;
+  standard: string; // ONA, ISO 17025, etc.
+  version: string;
+  chapter: string;
+  requirementCode: string;
+  description: string;
+  evaluationCriteria: string;
+  verificationType: 'yes_no' | 'multiple_choice' | 'text' | 'numeric';
+  weight: number;
+  observations?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface NormativeStandard {
+  id: string;
+  name: string; // ONA, ISO 17025, etc.
+  version: string;
+  description: string;
+  totalRequirements: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface ExcelTemplateColumn {
+  key: string;
+  header: string;
+  width: number;
+  type: 'text' | 'number' | 'date' | 'dropdown';
+  required: boolean;
+  validation?: string[];
+}
+
+export interface ImportPreviewData {
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
+  data: NormativeRequirement[];
+  totalRows: number;
+  validRows: number;
+}
+
+export interface NormativeMappingConfig {
+  templateColumns: ExcelTemplateColumn[];
+  supportedStandards: string[];
+  maxFileSize: number; // em MB
+  allowedFileTypes: string[];
 }
 
 // Tipos para formulários

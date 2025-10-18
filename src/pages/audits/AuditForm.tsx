@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -11,7 +11,8 @@ import {
   Calendar, 
   Save, 
   AlertCircle,
-  Info
+  Info,
+  CheckSquare
 } from 'lucide-react';
 import { useAuditProStore } from '../../store';
 import { toast } from 'sonner';
@@ -56,8 +57,12 @@ export default function AuditForm() {
     updateAudit,
     auditors,
     sectors,
-    auditTypes
+    auditTypes,
+    checklists
   } = useAuditProStore();
+
+  // Estado para o checklist selecionado
+  const [selectedChecklistId, setSelectedChecklistId] = useState<string>('');
 
   // Criar schema dinâmico baseado nos tipos de auditoria disponíveis
   const auditFormSchema = createAuditFormSchema(auditTypes);
@@ -68,7 +73,8 @@ export default function AuditForm() {
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-    watch
+    watch,
+    setValue
   } = useForm<AuditFormData>({
     resolver: zodResolver(auditFormSchema),
     defaultValues: {
@@ -81,6 +87,9 @@ export default function AuditForm() {
       description: ''
     }
   });
+
+  // Obter checklist selecionado
+  const selectedChecklist = selectedChecklistId ? checklists.find(c => c.id === selectedChecklistId) : null;
 
   // Carregar dados para edição
   useEffect(() => {
@@ -98,6 +107,7 @@ export default function AuditForm() {
           checklistId: audit.checklistId || '',
           description: audit.description || ''
         });
+        setSelectedChecklistId(audit.checklistId || '');
       } else {
         navigate('/audits');
       }
@@ -361,20 +371,121 @@ export default function AuditForm() {
               )}
             </div>
 
-            {/* Checklist ID */}
+            {/* Checklist */}
             <div>
-              <label className="block text-sm font-bold text-gray-800 mb-3">
-                ID do Checklist (Opcional)
+              <label className="block text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
+                <div className="p-1 bg-indigo-50 rounded-lg">
+                  <CheckSquare className="h-4 w-4 text-indigo-600" />
+                </div>
+                Checklist
               </label>
-              <input
-                type="text"
-                {...register('checklistId')}
-                className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 font-medium placeholder:text-gray-400 focus:bg-blue-50/30"
-                placeholder="Ex: CHK-001"
-              />
-              <p className="mt-2 text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
-                Você pode associar um checklist existente ou criar um durante a execução
-              </p>
+              {checklists.length > 0 ? (
+                <>
+                  <select
+                    {...register('checklistId')}
+                    value={selectedChecklistId}
+                    onChange={(e) => {
+                      setSelectedChecklistId(e.target.value);
+                      // Atualizar o valor do react-hook-form
+                      setValue('checklistId', e.target.value);
+                    }}
+                    className={`w-full px-5 py-4 border-2 rounded-xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-200 font-medium bg-white ${
+                      errors.checklistId ? 'border-red-300 bg-red-50/30' : 'border-gray-200 hover:border-gray-300 focus:bg-indigo-50/30'
+                    }`}
+                  >
+                    <option value="">Selecione um checklist (opcional)</option>
+                    {checklists
+                      .sort((a, b) => {
+                        // Priorizar checklists ativos
+                        if (a.isActive && !b.isActive) return -1;
+                        if (!a.isActive && b.isActive) return 1;
+                        return a.name.localeCompare(b.name);
+                      })
+                      .map((checklist) => (
+                        <option 
+                          key={checklist.id} 
+                          value={checklist.id}
+                          className={!checklist.isActive ? 'text-gray-400 italic' : ''}
+                        >
+                          {checklist.name} - v{checklist.version} ({checklist.category})
+                          {!checklist.isActive ? ' [Inativo]' : ''}
+                        </option>
+                      ))}
+                  </select>
+                  
+                  {/* Informações do checklist selecionado */}
+                  {selectedChecklist && (
+                    <div className="mt-3 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
+                      <div className="flex items-start gap-3">
+                        <CheckSquare className="h-5 w-5 text-indigo-600 mt-0.5 flex-shrink-0" />
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-indigo-900 mb-1">
+                            {selectedChecklist.name}
+                          </h4>
+                          <p className="text-sm text-indigo-700 mb-2">
+                            {selectedChecklist.description}
+                          </p>
+                          <div className="grid grid-cols-2 gap-4 text-xs">
+                            <div>
+                              <span className="font-medium text-indigo-800">Versão:</span>
+                              <span className="ml-1 text-indigo-600">v{selectedChecklist.version}</span>
+                            </div>
+                            <div>
+                              <span className="font-medium text-indigo-800">Categoria:</span>
+                              <span className="ml-1 text-indigo-600">{selectedChecklist.category}</span>
+                            </div>
+                            <div>
+                              <span className="font-medium text-indigo-800">Status:</span>
+                              <span className={`ml-1 ${selectedChecklist.isActive ? 'text-green-600' : 'text-red-600'}`}>
+                                {selectedChecklist.isActive ? 'Ativo' : 'Inativo'}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="font-medium text-indigo-800">Criado por:</span>
+                              <span className="ml-1 text-indigo-600">{selectedChecklist.createdBy}</span>
+                            </div>
+                          </div>
+                          {selectedChecklist.categories && selectedChecklist.categories.length > 0 && (
+                            <div className="mt-2">
+                              <span className="font-medium text-indigo-800 text-xs">Categorias:</span>
+                              <span className="ml-1 text-indigo-600 text-xs">
+                                {selectedChecklist.categories.length} categoria(s)
+                              </span>
+                            </div>
+                          )}
+                          {!selectedChecklist.isActive && (
+                            <div className="mt-2 flex items-center gap-1 text-xs text-amber-700 bg-amber-100 px-2 py-1 rounded">
+                              <AlertCircle className="h-3 w-3" />
+                              <span>Este checklist está inativo</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl bg-gray-50">
+                  <div className="flex items-center gap-2 text-gray-500">
+                    <Info className="h-4 w-4" />
+                    <span className="text-sm">Nenhum checklist cadastrado</span>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Crie checklists na seção "Checklists" para associá-los às auditorias
+                  </p>
+                </div>
+              )}
+              {errors.checklistId && (
+                <p className="mt-2 text-sm text-red-600 flex items-center gap-2 bg-red-50 px-3 py-2 rounded-lg border border-red-200">
+                  <AlertCircle className="h-4 w-4" />
+                  {errors.checklistId.message}
+                </p>
+              )}
+              {!selectedChecklistId && checklists.length > 0 && (
+                <p className="mt-2 text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
+                  Você pode associar um checklist existente ou criar um durante a execução da auditoria
+                </p>
+              )}
             </div>
 
             {/* Descrição */}

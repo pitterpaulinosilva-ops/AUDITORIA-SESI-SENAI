@@ -1,14 +1,15 @@
 import { format, isToday, isFuture, isPast } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Calendar, Clock, User, FileText } from 'lucide-react';
+import { Calendar, Clock, User, FileText, Play, Eye } from 'lucide-react';
 import { Audit, AuditStatus } from '../../types';
 
 interface ListViewProps {
   audits: Audit[];
   onAuditClick: (audit: Audit) => void;
+  onExecuteAudit: (auditId: string) => void;
 }
 
-export function ListView({ audits, onAuditClick }: ListViewProps) {
+export function ListView({ audits, onAuditClick, onExecuteAudit }: ListViewProps) {
   // Ordenar auditorias por data
   const sortedAudits = [...audits].sort((a, b) => {
     const dateA = new Date(a.scheduledDate || a.createdAt);
@@ -66,6 +67,10 @@ export function ListView({ audits, onAuditClick }: ListViewProps) {
 
   const groupOrder = ['Hoje', 'Futuras', 'Passadas', 'Sem data'];
 
+  const canExecuteAudit = (audit: Audit) => {
+    return audit.status === AuditStatus.PLANNED || audit.status === AuditStatus.IN_PROGRESS;
+  };
+
   return (
     <div className="space-y-6">
       {groupOrder.map((groupName) => {
@@ -84,8 +89,7 @@ export function ListView({ audits, onAuditClick }: ListViewProps) {
               {groupAudits.map((audit) => (
                 <div
                   key={audit.id}
-                  onClick={() => onAuditClick(audit)}
-                  className="p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+                  className="p-4 hover:bg-gray-50 transition-colors"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
@@ -133,19 +137,50 @@ export function ListView({ audits, onAuditClick }: ListViewProps) {
                       )}
                     </div>
                     
-                    {audit.score !== null && audit.score !== undefined && (
-                      <div className="ml-4 text-right">
-                        <div className="text-sm font-medium text-gray-900">
-                          {Math.round(audit.score)}%
+                    <div className="ml-4 flex flex-col items-end gap-2">
+                      {audit.score !== null && audit.score !== undefined && (
+                        <div className="text-right">
+                          <div className="text-sm font-medium text-gray-900">
+                            {Math.round(audit.score)}%
+                          </div>
+                          <div className="w-16 bg-gray-200 rounded-full h-2 mt-1">
+                            <div
+                              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                              style={{ width: `${audit.score}%` }}
+                            />
+                          </div>
                         </div>
-                        <div className="w-16 bg-gray-200 rounded-full h-2 mt-1">
-                          <div
-                            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                            style={{ width: `${audit.score}%` }}
-                          />
-                        </div>
+                      )}
+                      
+                      {/* Botões de ação */}
+                      <div className="flex gap-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onAuditClick(audit);
+                          }}
+                          className="flex items-center gap-1 px-3 py-1.5 text-xs border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                          title="Ver Detalhes"
+                        >
+                          <Eye className="w-3 h-3" />
+                          Ver
+                        </button>
+                        
+                        {canExecuteAudit(audit) && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onExecuteAudit(audit.id);
+                            }}
+                            className="flex items-center gap-1 px-3 py-1.5 text-xs bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                            title="Executar Auditoria"
+                          >
+                            <Play className="w-3 h-3" />
+                            Executar
+                          </button>
+                        )}
                       </div>
-                    )}
+                    </div>
                   </div>
                 </div>
               ))}

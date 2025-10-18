@@ -1,6 +1,6 @@
-import { Calendar, List, Grid } from 'lucide-react';
+import { Calendar, List, Grid, User } from 'lucide-react';
 
-export type CalendarView = 'month' | 'week' | 'list';
+export type CalendarView = 'month' | 'week' | 'list' | 'auditor';
 
 interface CalendarViewToggleProps {
   currentView: CalendarView;
@@ -9,6 +9,7 @@ interface CalendarViewToggleProps {
 
 export function CalendarViewToggle({ currentView, onViewChange }: CalendarViewToggleProps) {
   const views = [
+    { key: 'auditor' as CalendarView, label: 'Auditor', icon: User },
     { key: 'month' as CalendarView, label: 'Mês', icon: Calendar },
     { key: 'week' as CalendarView, label: 'Semana', icon: Grid },
     { key: 'list' as CalendarView, label: 'Lista', icon: List }

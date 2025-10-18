@@ -227,20 +227,13 @@ export function Dashboard() {
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-sm sm:text-base text-gray-600">Visão geral das auditorias e conformidades</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-theme-primary">Dashboard</h1>
+          <p className="text-theme-secondary mt-1 text-sm sm:text-base">Visão geral do sistema de auditoria</p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-          <select className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-            <option>Mês atual</option>
-            <option>Últimos 3 meses</option>
-            <option>Último ano</option>
-          </select>
-          <button className="btn-primary">
-            Exportar Relatório
-          </button>
+        <div className="text-xs sm:text-sm text-theme-tertiary bg-theme-secondary px-3 py-1 rounded-lg">
+          Período: {format(currentMonth, 'MMMM yyyy')}
         </div>
       </div>
 
@@ -284,10 +277,10 @@ export function Dashboard() {
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Auditorias por Mês */}
-        <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+        <div className="bg-theme-primary rounded-lg border border-theme-primary shadow-theme-lg p-4 sm:p-6 transition-all duration-300">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 mb-4 sm:mb-6">
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900">Auditorias por Mês</h3>
-            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600">
+            <h3 className="text-base sm:text-lg font-semibold text-theme-primary">Auditorias por Mês</h3>
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-theme-tertiary">
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-blue-500 rounded-full" />
                 <span>Planejadas</span>
@@ -318,9 +311,9 @@ export function Dashboard() {
         </div>
 
         {/* Não Conformidades por Processo/Subprocesso e Setor */}
-        <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+        <div className="bg-theme-primary rounded-lg border border-theme-primary shadow-theme-lg p-4 sm:p-6 transition-all duration-300">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 mb-4 sm:mb-6">
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900">NCs por Processo/Setor</h3>
+            <h3 className="text-base sm:text-lg font-semibold text-theme-primary">NCs por Processo/Setor</h3>
           </div>
           <div className="h-64 sm:h-80">
             <ResponsiveContainer width="100%" height="100%">
@@ -346,9 +339,9 @@ export function Dashboard() {
         </div>
 
         {/* Taxa de Conformidade por Tipo de Auditoria */}
-        <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+        <div className="bg-theme-primary rounded-lg border border-theme-primary shadow-theme-lg p-4 sm:p-6 transition-all duration-300">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 mb-4 sm:mb-6">
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900">Taxa de Conformidade por Tipo</h3>
+            <h3 className="text-base sm:text-lg font-semibold text-theme-primary">Taxa de Conformidade por Tipo</h3>
           </div>
           <div className="h-64 sm:h-80">
             <ResponsiveContainer width="100%" height="100%">
@@ -364,10 +357,10 @@ export function Dashboard() {
         </div>
 
         {/* Desempenho por Auditor */}
-        <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+        <div className="bg-theme-primary rounded-lg border border-theme-primary shadow-theme-lg p-4 sm:p-6 transition-all duration-300">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 mb-4 sm:mb-6">
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900">Desempenho por Auditor</h3>
-            <p className="text-xs text-gray-500">% Realizadas/Planejadas</p>
+            <h3 className="text-base sm:text-lg font-semibold text-theme-primary">Desempenho por Auditor</h3>
+            <p className="text-xs text-theme-tertiary">% Realizadas/Planejadas</p>
           </div>
           <div className="h-64 sm:h-80">
             <ResponsiveContainer width="100%" height="100%">
@@ -378,13 +371,13 @@ export function Dashboard() {
                 <Tooltip formatter={(value) => [`${Number(value).toFixed(1)}%`, 'Performance']} />
                 {auditors.map((auditor, index) => (
                   <Line
-                    key={auditor.id}
-                    type="monotone"
-                    dataKey={auditor.name}
-                    stroke={auditorColors[index % auditorColors.length]}
-                    strokeWidth={2}
-                    dot={{ r: 4 }}
-                  />
+                      key={`auditor-${auditor.id}`}
+                      type="monotone"
+                      dataKey={auditor.name}
+                      stroke={auditorColors[index % auditorColors.length]}
+                      strokeWidth={2}
+                      dot={{ r: 4 }}
+                    />
                 ))}
               </LineChart>
             </ResponsiveContainer>
@@ -393,10 +386,10 @@ export function Dashboard() {
       </div>
 
       {/* Resumo Executivo */}
-      <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
-        <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">Resumo Executivo</h3>
+      <div className="bg-theme-primary rounded-lg border border-theme-primary shadow-theme-lg p-4 sm:p-6 transition-all duration-300">
+        <h3 className="text-base sm:text-lg font-semibold text-theme-primary mb-4">Resumo Executivo</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="p-4 bg-blue-50 rounded-lg">
+          <div className="p-4 bg-blue-50 rounded-lg border border-blue-200 transition-colors duration-300">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-blue-600 font-medium">Total de Auditorias</p>
@@ -405,7 +398,7 @@ export function Dashboard() {
               <Activity className="h-8 w-8 text-blue-600" />
             </div>
           </div>
-          <div className="p-4 bg-green-50 rounded-lg">
+          <div className="p-4 bg-green-50 rounded-lg border border-green-200 transition-colors duration-300">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-green-600 font-medium">Taxa de Conclusão</p>
@@ -416,7 +409,7 @@ export function Dashboard() {
               <Target className="h-8 w-8 text-green-600" />
             </div>
           </div>
-          <div className="p-4 bg-orange-50 rounded-lg">
+          <div className="p-4 bg-orange-50 rounded-lg border border-orange-200 transition-colors duration-300">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-orange-600 font-medium">NCs Abertas</p>

@@ -98,7 +98,7 @@ const VersionHistory: React.FC<VersionHistoryProps> = ({
           {selectedVersions.length === 2 && (
             <button
               onClick={handleCompare}
-              className="btn-primary"
+              className="btn btn-primary"
             >
               <GitCompare className="w-4 h-4" />
               Comparar Versões

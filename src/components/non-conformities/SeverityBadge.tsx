@@ -1,5 +1,5 @@
 import React from 'react'
-import { ShieldAlert, AlertOctagon, AlertCircle, CheckCircle2 } from 'lucide-react'
+import { ShieldAlert, AlertOctagon, AlertCircle, CheckCircle2, AlertTriangle, Info } from 'lucide-react'
 import { NonConformitySeverity } from '../../types'
 
 interface SeverityBadgeProps {
@@ -63,12 +63,12 @@ export function SeverityBadge({ severity, showIcon = true, size = 'md' }: Severi
         }
       case 'lg':
         return {
-          container: 'px-3 py-2 text-base',
+          container: 'px-4 py-2 text-base',
           icon: 'w-5 h-5'
         }
-      default: // md
+      default:
         return {
-          container: 'px-2.5 py-1.5 text-sm',
+          container: 'px-3 py-1.5 text-sm',
           icon: 'w-4 h-4'
         }
     }
@@ -79,13 +79,46 @@ export function SeverityBadge({ severity, showIcon = true, size = 'md' }: Severi
   const Icon = config.icon
 
   return (
-    <span className={`
-      inline-flex items-center gap-1.5 font-medium rounded-full border
-      ${config.bgColor} ${config.textColor} ${config.borderColor}
-      ${sizeClasses.container}
-    `}>
+    <span
+      className={`inline-flex items-center gap-1.5 font-medium rounded-full border ${config.bgColor} ${config.textColor} ${config.borderColor} ${sizeClasses.container}`}
+    >
       {showIcon && <Icon className={sizeClasses.icon} />}
       {config.label}
     </span>
   )
 }
+
+const severityConfig = {
+  [NonConformitySeverity.CRITICAL]: {
+    label: 'Crítica',
+    icon: AlertTriangle,
+    bgColor: 'bg-red-100',
+    textColor: 'text-red-800',
+    borderColor: 'border-red-200',
+    iconColor: 'text-red-600'
+  },
+  [NonConformitySeverity.HIGH]: {
+    label: 'Alta',
+    icon: AlertCircle,
+    bgColor: 'bg-orange-100',
+    textColor: 'text-orange-800',
+    borderColor: 'border-orange-200',
+    iconColor: 'text-orange-600'
+  },
+  [NonConformitySeverity.MEDIUM]: {
+    label: 'Média',
+    icon: AlertTriangle,
+    bgColor: 'bg-yellow-100',
+    textColor: 'text-yellow-800',
+    borderColor: 'border-yellow-200',
+    iconColor: 'text-yellow-600'
+  },
+  [NonConformitySeverity.LOW]: {
+    label: 'Baixa',
+    icon: Info,
+    bgColor: 'bg-green-100',
+    textColor: 'text-green-800',
+    borderColor: 'border-green-200',
+    iconColor: 'text-green-600'
+  }
+};

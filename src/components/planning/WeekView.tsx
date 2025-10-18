@@ -85,12 +85,12 @@ export function WeekView({ currentDate, audits, onDayClick }: WeekViewProps) {
 
               {/* Lista de auditorias (máximo 3 visíveis) */}
               <div className="mt-2 space-y-1">
-                {dayAudits.slice(0, 3).map((audit) => (
+                {dayAudits.slice(0, 3).map((audit, auditIndex) => (
                   <div
-                    key={audit.id}
-                    className="text-xs p-1 rounded bg-gray-100 text-gray-700 truncate"
-                    title={audit.title}
-                  >
+            key={`${audit.id}-${auditIndex}`}
+            className="text-xs p-1 rounded bg-gray-100 text-gray-700 truncate"
+            title={audit.title}
+          >
                     {audit.title}
                   </div>
                 ))}

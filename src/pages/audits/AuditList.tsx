@@ -34,9 +34,9 @@ export function AuditList() {
   const [auditToCancel, setAuditToCancel] = useState<{ id: string; title: string } | null>(null);
   const [isCancelling, setIsCancelling] = useState(false);
 
-  // Filtrar auditorias
+  // Filtrar e ordenar auditorias
   const filteredAudits = useMemo(() => {
-    return audits.filter(audit => {
+    const filtered = audits.filter(audit => {
       // Busca por texto
       if (filters.search) {
         const searchTerm = filters.search.toLowerCase();
@@ -83,6 +83,54 @@ export function AuditList() {
       }
 
       return true;
+    });
+
+    // Ordenar por prioridade de status e datas
+    return filtered.sort((a, b) => {
+      const now = new Date();
+      const sevenDaysFromNow = new Date();
+      sevenDaysFromNow.setDate(now.getDate() + 7);
+
+      const aScheduledDate = new Date(a.scheduledDate);
+      const bScheduledDate = new Date(b.scheduledDate);
+
+      // Função para determinar prioridade
+      const getPriority = (audit: any) => {
+        const auditScheduledDate = new Date(audit.scheduledDate);
+        // 1. Auditorias em atraso (data passou e não está concluída)
+        if (auditScheduledDate < now && audit.status !== AuditStatus.COMPLETED) {
+          return 1;
+        }
+        // 2. Auditorias próximas do vencimento (próximos 7 dias)
+        if (auditScheduledDate >= now && auditScheduledDate <= sevenDaysFromNow && audit.status !== AuditStatus.COMPLETED) {
+          return 2;
+        }
+        // 3. Auditorias concluídas
+        if (audit.status === AuditStatus.COMPLETED) {
+          return 4;
+        }
+        // 4. Demais auditorias
+        return 3;
+      };
+
+      const aPriority = getPriority(a);
+      const bPriority = getPriority(b);
+
+      // Se têm prioridades diferentes, ordenar por prioridade
+      if (aPriority !== bPriority) {
+        return aPriority - bPriority;
+      }
+
+      // Se têm a mesma prioridade, ordenar por data
+      if (aPriority === 4) { // Auditorias concluídas
+        // Ordenar por data de conclusão (mais recentes primeiro)
+        const aCompletedDate = a.completedDate ? new Date(a.completedDate) : new Date(0);
+        const bCompletedDate = b.completedDate ? new Date(b.completedDate) : new Date(0);
+        return bCompletedDate.getTime() - aCompletedDate.getTime();
+      } else {
+        // Ordenar por data agendada (mais próximas primeiro)
+        return aScheduledDate.getTime() - bScheduledDate.getTime();
+      }
     });
   }, [audits, filters]);
 
@@ -219,7 +267,7 @@ export function AuditList() {
           
           <button
             onClick={() => navigate('/audits/new')}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             <Plus className="h-4 w-4" />
             Nova Auditoria
@@ -277,6 +325,12 @@ export function AuditList() {
                         Auditor
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Data Inicial
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Data Final
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Data
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -299,7 +353,7 @@ export function AuditList() {
                               {audit.title}
                             </div>
                             <div className="text-sm text-gray-500">
-                              ID: {audit.id.slice(0, 8)}
+                              ID: {audit.displayId || audit.id.slice(0, 8)}
                             </div>
                           </div>
                         </td>
@@ -315,6 +369,22 @@ export function AuditList() {
                           {audit.auditor}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {audit.actualStartDate 
+                            ? formatDate(audit.actualStartDate.toString()) 
+                            : audit.plannedStartDate 
+                              ? formatDate(audit.plannedStartDate.toString())
+                              : '-'
+                          }
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {audit.actualEndDate 
+                            ? formatDate(audit.actualEndDate.toString()) 
+                            : audit.plannedEndDate 
+                              ? formatDate(audit.plannedEndDate.toString())
+                              : '-'
+                          }
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {formatDate(audit.scheduledDate.toString())}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -322,7 +392,7 @@ export function AuditList() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`text-sm font-medium ${getScoreColor(audit.score)}`}>
-                            {audit.score !== null ? `${audit.score}%` : '-'}
+                            {audit.score !== undefined && audit.score !== null ? `${audit.score}%` : '-'}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

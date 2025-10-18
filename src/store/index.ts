@@ -23,7 +23,15 @@ import {
   Sector,
   Subprocess,
   Process,
-  AuditTypeConfig
+  AuditTypeConfig,
+  NormativeRequirement as NormativeRequirementType,
+  NormativeStandard,
+  ChecklistTag,
+  ChecklistCategory,
+  NormativeSection,
+  NormativeRequirement as NormativeRequirementInterface,
+  EvaluationMeasure,
+  ImportPreviewData
 } from '../types';
 
 // Interface do estado principal
@@ -46,6 +54,11 @@ interface AuditProState {
   subprocesses: Subprocess[];
   processes: Process[];
   auditTypes: AuditTypeConfig[];
+  checklistCategories: ChecklistCategory[];
+  
+  // Dados normativos
+  normativeRequirements: NormativeRequirementType[];
+  normativeStandards: NormativeStandard[];
   
   // Estado da UI
   sidebarOpen: boolean;
@@ -153,8 +166,38 @@ interface AuditProState {
   updateAuditType: (id: number, updates: Partial<Omit<AuditTypeConfig, 'id'>>) => void;
   deleteAuditType: (id: number) => void;
   
+  // Ações para categorias de checklist
+  addChecklistCategory: (category: Omit<ChecklistCategory, 'id'>) => void;
+  updateChecklistCategory: (id: string, updates: Partial<Omit<ChecklistCategory, 'id'>>) => void;
+  deleteChecklistCategory: (id: string) => void;
+  getChecklistCategoryById: (id: string) => ChecklistCategory | undefined;
+  
+  // Ações para seções normativas
+  addNormativeSection: (categoryId: number, section: Omit<NormativeSection, 'id'>) => void;
+  updateNormativeSection: (categoryId: number, sectionId: number, updates: Partial<Omit<NormativeSection, 'id'>>) => void;
+  deleteNormativeSection: (categoryId: number, sectionId: number) => void;
+  
+  // Ações para requisitos normativos
+  addNormativeRequirement: (categoryId: number, sectionId: number, requirement: Omit<NormativeRequirementInterface, 'id'>) => void;
+  updateNormativeRequirement: (categoryId: number, sectionId: number, requirementId: number, updates: Partial<Omit<NormativeRequirementInterface, 'id'>>) => void;
+  deleteNormativeRequirement: (categoryId: number, sectionId: number, requirementId: number) => void;
+  
   getSubprocessesBySector: (sectorName: string) => Subprocess[];
   getProcessesBySector: (sectorName: string) => Process[];
+  
+  // Ações para requisitos normativos (sistema antigo)
+  addNormativeRequirementOld: (requirement: Omit<NormativeRequirementType, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  updateNormativeRequirementOld: (id: number, updates: Partial<NormativeRequirementType>) => void;
+  deleteNormativeRequirementOld: (id: number) => void;
+  getNormativeRequirementsByStandard: (standard: string) => NormativeRequirementType[];
+  
+  addNormativeStandard: (standard: Omit<NormativeStandard, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  updateNormativeStandard: (id: string, updates: Partial<NormativeStandard>) => void;
+  deleteNormativeStandard: (id: string) => void;
+  
+  // Ações para importação e conversão
+  importNormativeRequirements: (requirements: NormativeRequirementType[], standardName: string, version: string) => Promise<void>;
+  convertRequirementsToChecklist: (requirements: NormativeRequirementType[], checklistName: string, standard: string, version: string, shouldSave?: boolean) => string | Checklist;
 }
 
 // Configuração inicial do sistema
@@ -193,6 +236,7 @@ const generateId = (): string => {
 const sampleAudits: Audit[] = [
   {
     id: 'audit-1',
+    displayId: 'INT-2024-001',
     title: 'Auditoria de Segurança do Paciente - UTI',
     description: 'Auditoria focada em protocolos de segurança do paciente na UTI',
     type: AuditType.INTERNAL,
@@ -216,6 +260,7 @@ const sampleAudits: Audit[] = [
   },
   {
     id: 'audit-2',
+    displayId: 'INT-2024-002',
     title: 'Auditoria de Medicamentos - Farmácia',
     description: 'Verificação dos processos de armazenamento e dispensação de medicamentos',
     type: AuditType.INTERNAL,
@@ -239,6 +284,7 @@ const sampleAudits: Audit[] = [
   },
   {
     id: 'audit-3',
+    displayId: 'INT-2024-003',
     title: 'Auditoria de Emergência - Pronto Socorro',
     description: 'Avaliação dos protocolos de atendimento de emergência',
     type: AuditType.INTERNAL,
@@ -556,6 +602,11 @@ export const useAuditProStore = create<AuditProState>()(
       subprocesses: [],
       processes: [],
       auditTypes: [],
+      checklistCategories: [],
+      
+      // Estado inicial dos requisitos normativos
+      normativeRequirements: [],
+      normativeStandards: [],
       
       // Estado da UI
       sidebarOpen: false,
@@ -565,9 +616,31 @@ export const useAuditProStore = create<AuditProState>()(
       
       // Implementação das ações para auditorias
       createAudit: (auditData) => {
+        const currentYear = new Date().getFullYear();
+        const auditsForTypeAndYear = get().audits.filter(
+          (audit) => audit.type === auditData.type && new Date(audit.createdAt).getFullYear() === currentYear
+        );
+        const nextSequenceNumber = auditsForTypeAndYear.length + 1;
+
+        let typeAcronym = 'AUD';
+        switch (auditData.type) {
+          case AuditType.INTERNAL:
+            typeAcronym = 'INT';
+            break;
+          case AuditType.EXTERNAL:
+            typeAcronym = 'EXT';
+            break;
+          case AuditType.SUPPLIER:
+            typeAcronym = 'FOR';
+            break;
+        }
+
+        const displayId = `${typeAcronym}-${currentYear}-${String(nextSequenceNumber).padStart(3, '0')}`;
+
         const newAudit: Audit = {
           ...auditData,
           id: generateId(),
+          displayId: displayId, // Adiciona o displayId gerado
           status: AuditStatus.PLANNED,
           score: null,
           createdAt: new Date(),
@@ -648,6 +721,12 @@ export const useAuditProStore = create<AuditProState>()(
         const executedAt = new Date();
         const scheduledDate = audit.scheduledDate;
         
+        // Log de debug para verificar o score recebido
+        console.log('=== DEBUG STORE ===');
+        console.log('Score recebido no store:', score);
+        console.log('Tipo do score:', typeof score);
+        console.log('==================');
+        
         // Determinar status de execução em relação ao prazo
         let timingStatus: ExecutionTimingStatus;
         let note: string;
@@ -680,13 +759,20 @@ export const useAuditProStore = create<AuditProState>()(
                   ...audit, 
                   status: AuditStatus.COMPLETED,
                   actualEndDate: executedAt,
-                  score: score || audit.score,
+                  score: score !== undefined ? Number(score) : audit.score, // Garantir que seja número
                   executionNote,
                   updatedAt: new Date()
                 }
               : audit
           )
         }));
+        
+        // Log de debug para verificar o que foi salvo
+        const updatedAudit = get().audits.find(a => a.id === id);
+        console.log('=== DEBUG APÓS SALVAR ===');
+        console.log('Score salvo:', updatedAudit?.score);
+        console.log('Tipo do score salvo:', typeof updatedAudit?.score);
+        console.log('========================');
       },
       
       // Implementação das ações para checklists
@@ -1254,8 +1340,108 @@ export const useAuditProStore = create<AuditProState>()(
 
       deleteAuditType: (id: number) => {
         set((state) => ({
-          auditTypes: state.auditTypes.filter((auditType) => auditType.id !== id)
+          auditTypes: state.auditTypes.filter(type => type.id !== id)
         }));
+      },
+
+      // Ações para categorias de checklist
+      addChecklistCategory: (category: Omit<ChecklistCategory, 'id'>) => {
+        const newCategory: ChecklistCategory = {
+          ...category,
+          id: `category-${Date.now()}`
+        };
+        
+        set((state) => ({
+          checklistCategories: [...state.checklistCategories, newCategory]
+        }));
+        
+        console.log('Categoria adicionada:', newCategory);
+        console.log('Total de categorias:', get().checklistCategories.length);
+      },
+
+      updateChecklistCategory: (id: string, updates: Partial<Omit<ChecklistCategory, 'id'>>) => {
+        set((state) => ({
+          checklistCategories: state.checklistCategories.map(category =>
+            category.id === id ? { ...category, ...updates } : category
+          )
+        }));
+      },
+
+      deleteChecklistCategory: (id: string) => {
+        set((state) => ({
+          checklistCategories: state.checklistCategories.filter(category => category.id !== id)
+        }));
+      },
+
+      getChecklistCategoryById: (id: string) => {
+        return get().checklistCategories.find(category => category.id === id);
+      },
+
+      // Ações para seções normativas
+      addNormativeSection: (categoryId: number, section: Omit<NormativeSection, 'id'>) => {
+        // Esta função não é compatível com a estrutura atual de ChecklistCategory
+        // ChecklistCategory não possui normativeSections
+        console.warn('addNormativeSection: Esta função não é compatível com a estrutura atual de ChecklistCategory');
+      },
+
+      updateNormativeSection: (_categoryId: number, _sectionId: number, _updates: Partial<Omit<NormativeSection, 'id'>>) => {
+        // Esta função não é compatível com a estrutura atual de ChecklistCategory
+        // ChecklistCategory não possui normativeSections
+        console.warn('updateNormativeSection: Esta função não é compatível com a estrutura atual de ChecklistCategory');
+      },
+
+      deleteNormativeSection: (_categoryId: number, _sectionId: number) => {
+        // Esta função não é compatível com a estrutura atual de ChecklistCategory
+        // ChecklistCategory não possui normativeSections
+        console.warn('deleteNormativeSection: Esta função não é compatível com a estrutura atual de ChecklistCategory');
+      },
+
+      // Ações para requisitos normativos
+      addNormativeRequirement: (_categoryId: number, _sectionId: number, _requirement: Omit<NormativeRequirementInterface, 'id'>) => {
+        // Esta função não é compatível com a estrutura atual de ChecklistCategory
+        // ChecklistCategory não possui normativeSections
+        console.warn('addNormativeRequirement: Esta função não é compatível com a estrutura atual de ChecklistCategory');
+      },
+
+      updateNormativeRequirement: (_categoryId: number, _sectionId: number, _requirementId: number, _updates: Partial<Omit<NormativeRequirementInterface, 'id'>>) => {
+        // Esta função não é compatível com a estrutura atual de ChecklistCategory
+        // ChecklistCategory não possui normativeSections
+        console.warn('updateNormativeRequirement: Esta função não é compatível com a estrutura atual de ChecklistCategory');
+      },
+
+      deleteNormativeRequirement: (_categoryId: number, _sectionId: number, _requirementId: number) => {
+        // Esta função não é compatível com a estrutura atual de ChecklistCategory
+        // ChecklistCategory não possui normativeSections
+        console.warn('deleteNormativeRequirement: Esta função não é compatível com a estrutura atual de ChecklistCategory');
+      },
+
+      // Ações para tags de checklist (usando ChecklistCategory)
+      addChecklistTag: (tag: Omit<ChecklistCategory, 'id'>) => {
+        const newTag: ChecklistCategory = {
+          ...tag,
+          id: `tag-${Date.now()}`
+        };
+        set((state) => ({
+          checklistCategories: [...state.checklistCategories, newTag]
+        }));
+      },
+
+      updateChecklistTag: (id: string, updates: Partial<Omit<ChecklistCategory, 'id'>>) => {
+        set((state) => ({
+          checklistCategories: state.checklistCategories.map(tag =>
+            tag.id === id ? { ...tag, ...updates } : tag
+          )
+        }));
+      },
+
+      deleteChecklistTag: (id: string) => {
+        set((state) => ({
+          checklistCategories: state.checklistCategories.filter((tag) => tag.id !== id)
+        }));
+      },
+
+      getChecklistTagById: (id: string) => {
+        return get().checklistCategories.find((tag) => tag.id === id);
       },
 
       // Funções auxiliares para configurações
@@ -1265,6 +1451,185 @@ export const useAuditProStore = create<AuditProState>()(
 
       getProcessesBySector: (sectorName: string) => {
         return get().processes.filter((process) => process.sector === sectorName);
+      },
+
+      // Ações para requisitos normativos (sistema antigo)
+      addNormativeRequirementOld: (requirement: Omit<NormativeRequirementType, 'id' | 'createdAt' | 'updatedAt'>) => {
+        const newRequirement: NormativeRequirementType = {
+          ...requirement,
+          id: Date.now(),
+          createdAt: new Date(),
+          updatedAt: new Date()
+        };
+        set((state) => ({
+          normativeRequirements: [...state.normativeRequirements, newRequirement]
+        }));
+      },
+
+      updateNormativeRequirementOld: (id: number, updates: Partial<NormativeRequirementType>) => {
+        set((state) => ({
+          normativeRequirements: state.normativeRequirements.map((req) =>
+            req.id === id ? { ...req, ...updates, updatedAt: new Date() } : req
+          )
+        }));
+      },
+
+      deleteNormativeRequirementOld: (id: number) => {
+        set((state) => ({
+          normativeRequirements: state.normativeRequirements.filter((req) => req.id !== id)
+        }));
+      },
+
+      getNormativeRequirementsByStandard: (standard: string) => {
+        return get().normativeRequirements.filter((req) => req.standard === standard);
+      },
+
+      addNormativeStandard: (standard: Omit<NormativeStandard, 'id' | 'createdAt' | 'updatedAt'>) => {
+        const newStandard: NormativeStandard = {
+          ...standard,
+          id: generateId(),
+          createdAt: new Date(),
+          updatedAt: new Date()
+        };
+        set((state) => ({
+          normativeStandards: [...state.normativeStandards, newStandard]
+        }));
+      },
+
+      updateNormativeStandard: (id: string, updates: Partial<NormativeStandard>) => {
+        set((state) => ({
+          normativeStandards: state.normativeStandards.map((std) =>
+            std.id === id ? { ...std, ...updates, updatedAt: new Date() } : std
+          )
+        }));
+      },
+
+      deleteNormativeStandard: (id: string) => {
+        set((state) => ({
+          normativeStandards: state.normativeStandards.filter((std) => std.id !== id),
+          // Remove requisitos relacionados
+          normativeRequirements: state.normativeRequirements.filter((req) => 
+            state.normativeStandards.find(s => s.id === id)?.name !== req.standard
+          )
+        }));
+      },
+
+      // Ações para importação de requisitos
+      importNormativeRequirements: async (requirements: NormativeRequirementType[], standardName: string, version: string) => {
+        try {
+          set({ loading: true, error: null });
+
+          // Verificar se a norma já existe
+          const existingStandard = get().normativeStandards.find(
+            (std) => std.name === standardName && std.version === version
+          );
+
+          // Criar norma se não existir
+          if (!existingStandard) {
+            const newStandard: NormativeStandard = {
+              id: generateId(),
+              name: standardName,
+              version: version,
+              description: `Norma ${standardName} versão ${version}`,
+              totalRequirements: requirements.length,
+              createdAt: new Date(),
+              updatedAt: new Date()
+            };
+
+            set((state) => ({
+              normativeStandards: [...state.normativeStandards, newStandard]
+            }));
+          } else {
+            // Atualizar contagem de requisitos
+            set((state) => ({
+              normativeStandards: state.normativeStandards.map((std) =>
+                std.id === existingStandard.id
+                  ? { ...std, totalRequirements: requirements.length, updatedAt: new Date() }
+                  : std
+              )
+            }));
+          }
+
+          // Adicionar requisitos
+          set((state) => ({
+            normativeRequirements: [...state.normativeRequirements, ...requirements],
+            loading: false
+          }));
+
+        } catch (error) {
+          set({ 
+            error: 'Erro ao importar requisitos normativos: ' + (error as Error).message,
+            loading: false 
+          });
+          throw error;
+        }
+      },
+
+      convertRequirementsToChecklist: (requirements: NormativeRequirementType[], checklistName: string, standard: string, version: string, shouldSave: boolean = true) => {
+        try {
+          const checklistId = generateId();
+          
+          // Agrupar requisitos por capítulo
+          const groupedRequirements = requirements.reduce((acc, req) => {
+            if (!acc[req.chapter]) {
+              acc[req.chapter] = [];
+            }
+            acc[req.chapter].push(req);
+            return acc;
+          }, {} as Record<string, NormativeRequirementType[]>);
+
+          // Criar categorias e itens do checklist
+          const categories = Object.entries(groupedRequirements).map(([chapter, reqs], categoryIndex) => ({
+            id: `category_${checklistId}_${categoryIndex}`,
+            name: chapter,
+            title: chapter,
+            description: `Requisitos do capítulo: ${chapter}`,
+            weight: reqs.reduce((sum, req) => sum + req.weight, 0),
+            order: categoryIndex,
+            items: reqs.map((req, itemIndex) => ({
+              id: `item_${checklistId}_${categoryIndex}_${itemIndex}`,
+              title: `${req.requirementCode} - ${req.description ? req.description.substring(0, 100) : 'Sem descrição'}${req.description && req.description.length > 100 ? '...' : ''}`,
+              description: req.description || 'Sem descrição',
+              weight: req.weight,
+              isRequired: true,
+              order: itemIndex,
+              evidenceRequired: true,
+              maxScore: req.weight,
+              observations: req.observations
+            }))
+          }));
+
+          const newChecklist: Checklist = {
+            id: checklistId,
+            name: checklistName,
+            description: `Checklist gerado automaticamente a partir dos requisitos da norma ${standard} versão ${version}`,
+            version: '1.0',
+            isActive: true,
+            category: standard,
+            categories,
+            totalWeight: categories.reduce((sum, cat) => sum + cat.weight, 0),
+            maxScore: categories.reduce((sum, cat) => sum + cat.weight, 0),
+            createdBy: 'system',
+            tags: [standard, version],
+            versions: [],
+            createdAt: new Date(),
+            updatedAt: new Date()
+          };
+
+          // Só adicionar ao store se shouldSave for true
+          if (shouldSave) {
+            set((state) => ({
+              checklists: [...state.checklists, newChecklist]
+            }));
+            return checklistId;
+          }
+
+          // Se não deve salvar, retorna o checklist para preview
+          return newChecklist;
+        } catch (error) {
+          set({ error: 'Erro ao converter requisitos em checklist: ' + (error as Error).message });
+          throw error;
+        }
       }
     }),
     {
@@ -1285,7 +1650,10 @@ export const useAuditProStore = create<AuditProState>()(
         sectors: state.sectors,
         subprocesses: state.subprocesses,
         processes: state.processes,
-        auditTypes: state.auditTypes
+        auditTypes: state.auditTypes,
+        checklistCategories: state.checklistCategories,
+        normativeRequirements: state.normativeRequirements,
+        normativeStandards: state.normativeStandards
       })
     }
   )

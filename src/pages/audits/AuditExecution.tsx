@@ -23,7 +23,7 @@ interface ChecklistItem {
   id: string;
   title: string;
   description?: string;
-  isCompliant: boolean | null;
+  isCompliant: boolean | null | 'not_applicable'; // Adicionado 'not_applicable'
   notes: string;
   evidences: string[];
 }
@@ -40,44 +40,68 @@ export function AuditExecution() {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const { getAuditById, updateAudit, addNonConformity, addEvidence, startAuditExecution, finishAuditExecution } = useAuditProStore();
+  const { getAuditById, updateAudit, addNonConformity, addEvidence, startAuditExecution, finishAuditExecution, getChecklistById } = useAuditProStore();
   
   const audit = id ? getAuditById(id) : null;
   
-  // Mock checklist items - em uma implementação real, viria do checklist associado
-  const [checklistItems, setChecklistItems] = useState<ChecklistItem[]>([
-    {
-      id: '1',
-      title: 'Verificação de Equipamentos de Segurança',
-      description: 'Verificar se todos os equipamentos de segurança estão em conformidade',
-      isCompliant: null,
-      notes: '',
-      evidences: []
-    },
-    {
-      id: '2',
-      title: 'Documentação de Processos',
-      description: 'Verificar se a documentação dos processos está atualizada',
-      isCompliant: null,
-      notes: '',
-      evidences: []
-    },
-    {
-      id: '3',
-      title: 'Treinamento de Funcionários',
-      description: 'Verificar se os funcionários receberam treinamento adequado',
-      isCompliant: null,
-      notes: '',
-      evidences: []
+  // Carregar checklist items do checklist real associado à auditoria
+  const [checklistItems, setChecklistItems] = useState<ChecklistItem[]>([]);
+  const [checklistError, setChecklistError] = useState<string | null>(null);
+
+  // Função para converter estrutura do checklist para ChecklistItem[]
+  const convertChecklistToItems = (checklist: any): ChecklistItem[] => {
+    if (!checklist || !checklist.categories) {
+      return [];
     }
-  ]);
+
+    const items: ChecklistItem[] = [];
+    
+    checklist.categories.forEach((category: any, categoryIndex: number) => {
+      if (category.items && Array.isArray(category.items)) {
+        category.items.forEach((item: any, itemIndex: number) => {
+          items.push({
+            id: item.id || `${categoryIndex}-${itemIndex}`,
+            title: item.title || 'Item sem título',
+            description: item.description || '',
+            isCompliant: null,
+            notes: '',
+            evidences: []
+          });
+        });
+      }
+    });
+
+    return items;
+  };
+
+  // Carregar checklist items quando o componente montar ou audit mudar
+  React.useEffect(() => {
+    if (audit && audit.checklistId) {
+      const checklist = getChecklistById(audit.checklistId);
+      
+      if (checklist) {
+        const items = convertChecklistToItems(checklist);
+        if (items.length > 0) {
+          setChecklistItems(items);
+          setChecklistError(null);
+        } else {
+          setChecklistError('O checklist associado não possui itens para auditoria.');
+        }
+      } else {
+        setChecklistError('Checklist associado não encontrado.');
+      }
+    } else if (audit && !audit.checklistId) {
+      setChecklistError('Esta auditoria não possui um checklist associado.');
+    }
+  }, [audit, getChecklistById]);
   
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
   const [showNonConformityForm, setShowNonConformityForm] = useState(false);
+  const [showFinishConfirmation, setShowFinishConfirmation] = useState(false);
   const [nonConformityForm, setNonConformityForm] = useState<NonConformityForm>({
     title: '',
     description: '',
-    severity: NonConformitySeverity.MEDIUM
+    severity: 'media' as NonConformitySeverity
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -122,11 +146,59 @@ export function AuditExecution() {
     );
   }
 
+  // Verificar se há erro no carregamento do checklist
+  if (checklistError) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => navigate('/audits')}
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+          >
+            <ArrowLeft className="h-5 w-5" />
+            Voltar
+          </button>
+        </div>
+        
+        <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
+          <div className="flex flex-col items-center gap-4">
+            <AlertTriangle className="h-12 w-12 text-yellow-500" />
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Problema com o Checklist</h3>
+              <p className="text-gray-500">{checklistError}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Verificar se ainda está carregando ou se não há itens
+  if (checklistItems.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => navigate('/audits')}
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+          >
+            <ArrowLeft className="h-5 w-5" />
+            Voltar
+          </button>
+        </div>
+        
+        <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
+          <p className="text-gray-500">Carregando checklist...</p>
+        </div>
+      </div>
+    );
+  }
+
   const currentItem = checklistItems[currentItemIndex];
-  const completedItems = checklistItems.filter(item => item.isCompliant !== null).length;
+  const completedItems = checklistItems.filter(item => item.isCompliant !== null && item.isCompliant !== 'not_applicable').length + checklistItems.filter(item => item.isCompliant === 'not_applicable').length;
   const progress = (completedItems / checklistItems.length) * 100;
 
-  const handleComplianceChange = (isCompliant: boolean) => {
+  const handleComplianceChange = (isCompliant: boolean | 'not_applicable') => {
     const updatedItems = [...checklistItems];
     updatedItems[currentItemIndex] = {
       ...updatedItems[currentItemIndex],
@@ -134,7 +206,7 @@ export function AuditExecution() {
     };
     setChecklistItems(updatedItems);
 
-    if (!isCompliant) {
+    if (isCompliant === false) {
       setNonConformityForm({
         ...nonConformityForm,
         title: `Não conformidade: ${currentItem.title}`,
@@ -240,16 +312,60 @@ export function AuditExecution() {
   const handleFinishAudit = async () => {
     setIsSubmitting(true);
     
-    // Calcular pontuação
+    // Calcular pontuação excluindo itens "Não se Aplica"
     const compliantItems = checklistItems.filter(item => item.isCompliant === true).length;
+    const nonApplicableItems = checklistItems.filter(item => item.isCompliant === 'not_applicable').length;
     const totalItems = checklistItems.length;
-    const score = Math.round((compliantItems / totalItems) * 100);
+    const applicableItems = totalItems - nonApplicableItems;
+    
+    // Validações para evitar problemas
+    if (totalItems === 0) {
+      console.warn('Nenhum item no checklist encontrado');
+      setIsSubmitting(false);
+      return;
+    }
+    
+    // Caso especial: todos os itens são "Não se Aplica"
+    if (applicableItems === 0) {
+      console.log('Todos os itens são "Não se Aplica" - definindo pontuação como 100%');
+      finishAuditExecution(audit.id, 100);
+      setIsSubmitting(false);
+      navigate('/planning');
+      return;
+    }
+    
+    // Calcular score com base apenas nos itens aplicáveis
+    const rawScore = (compliantItems / applicableItems) * 100;
+    const score = Math.round(rawScore * 100) / 100; // Arredondar para 2 casas decimais
+    
+    // Logs de debug detalhados
+    console.log('=== DEBUG PONTUAÇÃO (NOVO CÁLCULO) ===');
+    console.log('Total de itens no checklist:', totalItems);
+    console.log('Itens conformes:', compliantItems);
+    console.log('Itens não aplicáveis:', nonApplicableItems);
+    console.log('Itens aplicáveis (total - N/A):', applicableItems);
+    console.log('Score bruto (conformes/aplicáveis):', rawScore);
+    console.log('Score final:', score);
+    console.log('=====================================');
 
     // Usar a nova função que adiciona notas automáticas
     finishAuditExecution(audit.id, score);
 
     setIsSubmitting(false);
-    navigate(`/audits/${audit.id}`);
+    navigate('/planning');
+  };
+
+  const handleFinishClick = () => {
+    setShowFinishConfirmation(true);
+  };
+
+  const handleConfirmFinish = () => {
+    setShowFinishConfirmation(false);
+    handleFinishAudit();
+  };
+
+  const handleCancelFinish = () => {
+    setShowFinishConfirmation(false);
   };
 
   const canFinish = checklistItems.every(item => item.isCompliant !== null);
@@ -315,6 +431,9 @@ export function AuditExecution() {
               {currentItem.isCompliant === false && (
                 <XCircle className="h-5 w-5 text-red-600" />
               )}
+              {currentItem.isCompliant === 'not_applicable' && (
+                <AlertTriangle className="h-5 w-5 text-gray-600" />
+              )}
             </div>
           </div>
 
@@ -327,7 +446,7 @@ export function AuditExecution() {
           )}
 
           {/* Compliance Buttons */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="grid grid-cols-3 gap-4 mb-6">
             <button
               onClick={() => handleComplianceChange(true)}
               className={`flex items-center justify-center gap-2 p-4 rounded-lg border-2 transition-all ${
@@ -350,6 +469,18 @@ export function AuditExecution() {
             >
               <X className="h-5 w-5" />
               Não Conforme
+            </button>
+
+            <button
+              onClick={() => handleComplianceChange('not_applicable')}
+              className={`flex items-center justify-center gap-2 p-4 rounded-lg border-2 transition-all ${
+                currentItem.isCompliant === 'not_applicable'
+                  ? 'border-gray-500 bg-gray-50 text-gray-700'
+                  : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              <AlertTriangle className="h-5 w-5" />
+              Não se Aplica
             </button>
           </div>
 
@@ -443,7 +574,7 @@ export function AuditExecution() {
 
           {currentItemIndex === checklistItems.length - 1 ? (
             <button
-              onClick={handleFinishAudit}
+              onClick={handleFinishClick}
               disabled={!canFinish || isSubmitting}
               className="flex items-center gap-2 px-6 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -524,6 +655,68 @@ export function AuditExecution() {
               <button
                 onClick={() => setShowNonConformityForm(false)}
                 className="flex-1 px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Finish Confirmation Modal */}
+      {showFinishConfirmation && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-lg w-full p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <CheckCircle className="h-6 w-6 text-green-600" />
+              <h3 className="text-xl font-semibold text-gray-900">Finalizar Auditoria</h3>
+            </div>
+
+            <p className="text-gray-600 mb-6">
+              Você tem certeza que deseja encerrar esta auditoria?
+            </p>
+
+            {/* Audit Summary */}
+            <div className="bg-gray-50 rounded-lg p-4 mb-6 space-y-3">
+              <div className="flex justify-between">
+                <span className="font-medium text-gray-700">Auditoria:</span>
+                <span className="text-gray-900">{audit?.title}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-medium text-gray-700">Setor:</span>
+                <span className="text-gray-900">{audit?.sector}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-medium text-gray-700">Progresso:</span>
+                <span className="text-gray-900">
+                  {checklistItems.filter(item => item.isCompliant !== null && item.isCompliant !== 'not_applicable').length + checklistItems.filter(item => item.isCompliant === 'not_applicable').length} de {checklistItems.length} itens avaliados
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-medium text-gray-700">Conformidade:</span>
+                <span className="text-gray-900">
+                  {(() => {
+                    const compliantItems = checklistItems.filter(item => item.isCompliant === true).length;
+                    const nonApplicableItems = checklistItems.filter(item => item.isCompliant === 'not_applicable').length;
+                    const applicableItems = checklistItems.length - nonApplicableItems;
+                    return applicableItems > 0 ? Math.round((compliantItems / applicableItems) * 100) : 100;
+                  })()}%
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleConfirmFinish}
+                disabled={isSubmitting}
+                className="flex-1 px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? 'Finalizando...' : 'Confirmar'}
+              </button>
+              <button
+                onClick={handleCancelFinish}
+                disabled={isSubmitting}
+                className="flex-1 px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50"
               >
                 Cancelar
               </button>

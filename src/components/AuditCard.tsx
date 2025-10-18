@@ -76,7 +76,7 @@ export const AuditCard: React.FC<AuditCardProps> = ({
           {onView && (
             <button
               onClick={() => onView(id)}
-              className="btn-action btn-view w-8 h-8 sm:w-9 sm:h-9 touch-manipulation"
+              className="btn-icon btn-info w-8 h-8 sm:w-9 sm:h-9 touch-manipulation"
               title="Visualizar"
             >
               <Eye className="w-4 h-4" />
@@ -85,7 +85,7 @@ export const AuditCard: React.FC<AuditCardProps> = ({
           {onEdit && status !== AuditStatus.COMPLETED && (
             <button
               onClick={() => onEdit(id)}
-              className="btn-action btn-edit w-8 h-8 sm:w-9 sm:h-9 touch-manipulation"
+              className="btn-icon btn-edit w-8 h-8 sm:w-9 sm:h-9 touch-manipulation"
               title="Editar"
             >
               <Edit3 className="w-4 h-4" />
@@ -94,7 +94,7 @@ export const AuditCard: React.FC<AuditCardProps> = ({
           {onExecute && status === AuditStatus.PLANNED && (
             <button
               onClick={() => onExecute(id)}
-              className="btn-action text-orange-600 hover:text-orange-700 hover:bg-orange-50 w-8 h-8 sm:w-9 sm:h-9 touch-manipulation"
+              className="btn-icon text-orange-600 hover:text-orange-700 hover:bg-orange-50 w-8 h-8 sm:w-9 sm:h-9 touch-manipulation"
               title="Executar"
             >
               <PlayCircle className="w-4 h-4" />
@@ -103,7 +103,7 @@ export const AuditCard: React.FC<AuditCardProps> = ({
           {onCancel && status !== AuditStatus.COMPLETED && status !== AuditStatus.CANCELLED && (
             <button
               onClick={() => onCancel(id)}
-              className="btn-action btn-delete w-8 h-8 sm:w-9 sm:h-9 touch-manipulation"
+              className="btn-icon btn-delete w-8 h-8 sm:w-9 sm:h-9 touch-manipulation"
               title="Cancelar"
             >
               <XCircle className="w-4 h-4" />

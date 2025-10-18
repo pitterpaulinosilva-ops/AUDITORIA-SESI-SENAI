@@ -1,16 +1,137 @@
-@import './styles/buttons.css';
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-  line-height: 1.5;
-  font-weight: 400;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
+/* Fontes */
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Sistema de cores harmonizado para modo claro e escuro */
+:root {
+  /* Cores para modo claro */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f8fafc;
+  --color-bg-tertiary: #f1f5f9;
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #334155;
+  --color-text-tertiary: #64748b;
+  --color-border-primary: #e2e8f0;
+  --color-border-secondary: #cbd5e1;
+  
+  /* Sombras e efeitos */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+/* Cores para modo escuro */
+.dark {
+  --color-bg-primary: #0f172a;
+  --color-bg-secondary: #1e293b;
+  --color-bg-tertiary: #334155;
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #cbd5e1;
+  --color-text-tertiary: #94a3b8;
+  --color-border-primary: #334155;
+  --color-border-secondary: #475569;
+  
+  /* Sombras ajustadas para modo escuro */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.6), 0 8px 10px -6px rgb(0 0 0 / 0.6);
+}
+
+/* Classes utilitárias para temas */
+@layer utilities {
+  .bg-theme-primary {
+    background-color: var(--color-bg-primary);
+  }
+  
+  .bg-theme-secondary {
+    background-color: var(--color-bg-secondary);
+  }
+  
+  .bg-theme-tertiary {
+    background-color: var(--color-bg-tertiary);
+  }
+  
+  .text-theme-primary {
+    color: var(--color-text-primary);
+  }
+  
+  .text-theme-secondary {
+    color: var(--color-text-secondary);
+  }
+  
+  .text-theme-tertiary {
+    color: var(--color-text-tertiary);
+  }
+  
+  .border-theme-primary {
+    border-color: var(--color-border-primary);
+  }
+  
+  .border-theme-secondary {
+    border-color: var(--color-border-secondary);
+  }
+  
+  .shadow-theme-sm {
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .shadow-theme-md {
+    box-shadow: var(--shadow-md);
+  }
+  
+  .shadow-theme-lg {
+    box-shadow: var(--shadow-lg);
+  }
+  
+  .shadow-theme-xl {
+    box-shadow: var(--shadow-xl);
+  }
+}
+
+/* Transições suaves para mudanças de tema */
+* {
+  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-secondary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-tertiary);
+}
+
+/* Melhorias de acessibilidade */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import ChecklistEditor from '../components/checklist/ChecklistEditor';
+import { ChecklistEditor } from '../components/checklist/ChecklistEditor';
 import { useAuditProStore } from '../store';
 import { ChecklistFormData } from '../types';
 
@@ -62,6 +62,7 @@ const ChecklistEdit: React.FC = () => {
         ...data,
         categories: data.categories.map((category, categoryIndex) => ({
           id: category.id || `category-${categoryIndex}`,
+          name: category.title,
           title: category.title,
           description: category.description,
           weight: category.weight,
@@ -141,7 +142,7 @@ const ChecklistEdit: React.FC = () => {
             </p>
             <button
               onClick={() => navigate('/checklists')}
-              className="btn-primary"
+              className="btn btn-primary"
             >
               Voltar para Lista
             </button>

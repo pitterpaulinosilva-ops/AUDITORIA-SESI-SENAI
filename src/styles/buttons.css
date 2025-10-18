@@ -1,83 +1,113 @@
-/* Estilos modernos e minimalistas para botões - Audita Pro */
+/* Base button styles */
+.btn {
+  @apply inline-flex items-center justify-center px-5 py-2.5 text-sm font-medium rounded-lg;
+  @apply transition-all duration-300 ease-in-out;
+  @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
+  @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  @apply transform hover:scale-[1.02] active:scale-[0.98];
+  @apply shadow-sm hover:shadow-md;
+}
 
-/* Botão Primário - Ações principais */
+/* Default button */
+.btn-default {
+  @apply btn;
+  @apply text-gray-700 bg-white;
+  @apply hover:bg-gray-50 focus:bg-gray-50 active:bg-gray-100;
+  @apply border border-gray-300 hover:border-gray-400 focus:border-gray-500;
+  @apply shadow-sm hover:shadow-md focus:shadow-lg;
+  @apply focus:ring-gray-500;
+}
+
+/* Primary button */
 .btn-primary {
-  @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white;
-  @apply bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800;
-  @apply border border-transparent rounded-xl shadow-sm hover:shadow-md;
-  @apply transition-all duration-200 ease-in-out;
-  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
-  @apply disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-sm;
-  @apply transform hover:scale-[1.02] active:scale-[0.98];
+  @apply btn;
+  @apply text-white bg-gradient-to-r from-primary-600 to-primary-700;
+  @apply hover:from-primary-700 hover:to-primary-800;
+  @apply focus:from-primary-700 focus:to-primary-800;
+  @apply active:from-primary-800 active:to-primary-900;
+  @apply shadow-md hover:shadow-lg focus:shadow-xl;
+  @apply focus:ring-primary-500;
 }
 
-/* Botão Secundário - Ações secundárias */
-.btn-secondary {
-  @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-gray-700;
-  @apply bg-white hover:bg-gray-50 border border-gray-300 hover:border-gray-400;
-  @apply rounded-xl shadow-sm hover:shadow-md;
-  @apply transition-all duration-200 ease-in-out;
-  @apply focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
-  @apply disabled:opacity-50 disabled:cursor-not-allowed;
-  @apply transform hover:scale-[1.02] active:scale-[0.98];
-}
-
-/* Botão de Sucesso - Ações positivas */
+/* Success button */
 .btn-success {
-  @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white;
-  @apply bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800;
-  @apply border border-transparent rounded-xl shadow-sm hover:shadow-md;
-  @apply transition-all duration-200 ease-in-out;
-  @apply focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2;
-  @apply disabled:opacity-50 disabled:cursor-not-allowed;
-  @apply transform hover:scale-[1.02] active:scale-[0.98];
+  @apply btn;
+  @apply text-white bg-success-600 hover:bg-success-700 focus:bg-success-700;
 }
 
-/* Botão de Perigo - Ações destrutivas */
+.btn-success:focus {
+  @apply focus:outline-none focus:ring-2 focus:ring-success-500 focus:ring-offset-2;
+}
+
+/* Danger button */
 .btn-danger {
-  @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white;
-  @apply bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800;
-  @apply border border-transparent rounded-xl shadow-sm hover:shadow-md;
-  @apply transition-all duration-200 ease-in-out;
+  @apply btn;
+  @apply text-white bg-red-600 hover:bg-red-700 focus:bg-red-700;
+}
+
+.btn-danger:focus {
   @apply focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2;
-  @apply disabled:opacity-50 disabled:cursor-not-allowed;
-  @apply transform hover:scale-[1.02] active:scale-[0.98];
 }
 
-/* Botão de Aviso - Ações de atenção */
+/* Warning button */
 .btn-warning {
-  @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white;
-  @apply bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800;
-  @apply border border-transparent rounded-xl shadow-sm hover:shadow-md;
-  @apply transition-all duration-200 ease-in-out;
-  @apply focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2;
-  @apply disabled:opacity-50 disabled:cursor-not-allowed;
-  @apply transform hover:scale-[1.02] active:scale-[0.98];
+  @apply btn;
+  @apply text-white bg-warning-600 hover:bg-warning-700 focus:bg-warning-700;
 }
 
-/* Botão Ghost - Minimalista */
+.btn-warning:focus {
+  @apply focus:outline-none focus:ring-2 focus:ring-warning-500 focus:ring-offset-2;
+}
+
+/* Outline Primary button */
+.btn-outline-primary {
+  @apply btn;
+  @apply text-primary-700 bg-transparent;
+  @apply hover:bg-gradient-to-r hover:from-primary-50 hover:to-primary-100;
+  @apply focus:bg-gradient-to-r focus:from-primary-50 focus:to-primary-100;
+  @apply active:bg-gradient-to-r active:from-primary-100 active:to-primary-200;
+  @apply border-2 border-primary-600 hover:border-primary-700 focus:border-primary-800;
+  @apply shadow-sm hover:shadow-md focus:shadow-lg;
+  @apply focus:ring-primary-500;
+  @apply hover:text-primary-800 focus:text-primary-800;
+}
+
+/* Outline button */
+.btn-outline {
+  @apply btn;
+  @apply text-gray-700 bg-transparent;
+  @apply hover:bg-gray-100 focus:bg-gray-100;
+  @apply border border-gray-300;
+}
+
+.btn-outline:focus {
+  @apply focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
+}
+
+/* Ghost button */
 .btn-ghost {
-  @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-gray-600;
-  @apply bg-transparent hover:bg-gray-100 border border-transparent hover:border-gray-200;
-  @apply rounded-xl transition-all duration-200 ease-in-out;
-  @apply focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
-  @apply disabled:opacity-50 disabled:cursor-not-allowed;
-  @apply transform hover:scale-[1.02] active:scale-[0.98];
-}
-
-/* Botão de Ação - Para ícones pequenos */
-.btn-action {
-  @apply inline-flex items-center justify-center p-2 text-gray-500 hover:text-gray-700;
+  @apply btn;
+  @apply text-gray-500 hover:text-gray-700;
   @apply bg-transparent hover:bg-gray-100 rounded-lg;
-  @apply transition-all duration-200 ease-in-out;
-  @apply focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
-  @apply disabled:opacity-50 disabled:cursor-not-allowed;
-  @apply transform hover:scale-110 active:scale-95;
 }
 
-/* Variações de tamanho */
+.btn-ghost:focus {
+  @apply focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
+}
+
+/* Icon button */
+.btn-icon {
+  @apply btn p-2;
+  @apply text-gray-500 hover:text-gray-700 bg-transparent hover:bg-gray-100 rounded-lg;
+}
+
+/* Size variations */
+.btn-xs {
+  @apply px-2 py-1 text-xs;
+}
+
 .btn-sm {
-  @apply px-3 py-2 text-xs;
+  @apply px-3 py-1.5 text-sm;
 }
 
 .btn-lg {
@@ -88,23 +118,37 @@
   @apply px-8 py-4 text-lg;
 }
 
-/* Botões específicos para ações comuns */
-.btn-view {
-  @apply btn-ghost text-blue-600 hover:text-blue-700 hover:bg-blue-50;
+/* Specific action buttons */
+.btn-info {
+  @apply btn-ghost text-blue-600 hover:text-blue-700;
+  @apply hover:bg-blue-50;
 }
 
 .btn-edit {
-  @apply btn-ghost text-orange-600 hover:text-orange-700 hover:bg-orange-50;
+  @apply btn-ghost text-orange-600 hover:text-orange-700;
+  @apply hover:bg-orange-50;
 }
 
 .btn-delete {
-  @apply btn-ghost text-red-600 hover:text-red-700 hover:bg-red-50;
+  @apply btn-ghost text-red-600 hover:text-red-700;
+  @apply hover:bg-red-50;
 }
 
-/* Botões de navegação */
+/* Form button styles */
+.form-btn {
+  @apply text-gray-700 bg-white;
+  @apply hover:bg-gray-50 border border-gray-300;
+  @apply hover:border-gray-400;
+  @apply px-4 py-2 rounded-lg transition-colors duration-200;
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+}
+
+/* Navigation buttons */
 .btn-nav {
-  @apply inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-gray-700;
-  @apply bg-white hover:bg-gray-50 border border-gray-300 hover:border-gray-400;
+  @apply inline-flex items-center justify-center px-3 py-2 text-sm font-medium;
+  @apply text-gray-700 bg-white;
+  @apply hover:bg-gray-50 border border-gray-300;
+  @apply hover:border-gray-400;
   @apply transition-all duration-200 ease-in-out;
   @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
   @apply disabled:opacity-50 disabled:cursor-not-allowed;
@@ -112,33 +156,199 @@
 }
 
 .btn-nav:first-child {
-  @apply rounded-l-xl;
+  @apply rounded-l-md;
 }
 
 .btn-nav:last-child {
-  @apply rounded-r-xl;
+  @apply rounded-r-md;
+}
+
+.btn-nav:not(:first-child):not(:last-child) {
+  @apply rounded-none;
 }
 
 .btn-nav:only-child {
-  @apply rounded-xl;
+  @apply rounded-md;
+}
+
+/* Loading state */
+.btn-loading {
+  @apply relative text-transparent;
+}
+
+.btn-loading::after {
+  content: '';
+  @apply absolute inset-0 flex items-center justify-center;
+  @apply w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin;
+  @apply text-current;
+}
+
+/* Botões base */
+.btn {
+  @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg;
+  @apply transition-all duration-200 ease-in-out;
+  @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+}
+
+/* Botão padrão */
+.btn-default {
+  @apply btn;
+  @apply text-gray-700 bg-white;
+  @apply hover:bg-gray-50 focus:bg-gray-50 active:bg-gray-100;
+  @apply border border-gray-300 hover:border-gray-400 focus:border-gray-500;
+  @apply shadow-sm hover:shadow-md focus:shadow-lg;
+  @apply focus:ring-gray-500;
+}
+
+/* Botão primário */
+.btn-primary {
+  @apply btn;
+  @apply text-white bg-gradient-to-r from-primary-600 to-primary-700;
+  @apply hover:from-primary-700 hover:to-primary-800;
+  @apply focus:from-primary-700 focus:to-primary-800;
+  @apply active:from-primary-800 active:to-primary-900;
+  @apply shadow-md hover:shadow-lg focus:shadow-xl;
+  @apply focus:ring-primary-500;
+}
+
+/* Botão de sucesso */
+.btn-success {
+  @apply btn;
+  @apply text-white bg-success-600;
+  @apply hover:bg-success-700 focus:bg-success-700;
+  @apply shadow-sm hover:shadow;
+  @apply focus:outline-none focus:ring-2 focus:ring-success-500 focus:ring-offset-2;
+}
+
+/* Botão de perigo */
+.btn-danger {
+  @apply btn;
+  @apply text-white bg-error-600;
+  @apply hover:bg-error-700 focus:bg-error-700;
+  @apply shadow-sm hover:shadow;
+  @apply focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2;
+}
+
+/* Botão de aviso */
+.btn-warning {
+  @apply btn;
+  @apply text-white bg-warning-600;
+  @apply hover:bg-warning-700 focus:bg-warning-700;
+  @apply shadow-sm hover:shadow;
+  @apply focus:outline-none focus:ring-2 focus:ring-warning-500 focus:ring-offset-2;
+}
+
+/* Botão outline primário */
+.btn-outline-primary {
+  @apply btn;
+  @apply text-primary-700 bg-transparent;
+  @apply hover:bg-gradient-to-r hover:from-primary-50 hover:to-primary-100;
+  @apply focus:bg-gradient-to-r focus:from-primary-50 focus:to-primary-100;
+  @apply active:bg-gradient-to-r active:from-primary-100 active:to-primary-200;
+  @apply border-2 border-primary-600 hover:border-primary-700 focus:border-primary-800;
+  @apply shadow-sm hover:shadow-md focus:shadow-lg;
+  @apply focus:ring-primary-500;
+  @apply hover:text-primary-800 focus:text-primary-800;
+}
+
+/* Botão outline padrão */
+.btn-outline {
+  @apply btn;
+  @apply text-gray-700 bg-transparent;
+  @apply hover:bg-gray-100 focus:bg-gray-100;
+  @apply border border-gray-300 hover:border-gray-400;
+  @apply shadow-sm hover:shadow;
+  @apply focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
+}
+
+/* Botão ghost */
+.btn-ghost {
+  @apply btn;
+  @apply text-gray-500 hover:text-gray-700;
+  @apply bg-transparent hover:bg-gray-100 rounded-lg;
+  @apply border-0 shadow-none;
+  @apply focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
+}
+
+/* Tamanhos */
+.btn-xs {
+  @apply px-2 py-1 text-xs;
+}
+
+.btn-sm {
+  @apply px-3 py-1.5 text-sm;
+}
+
+.btn-lg {
+  @apply px-6 py-3 text-base;
+}
+
+.btn-xl {
+  @apply px-8 py-4 text-lg;
+}
+
+/* Botões coloridos para ações específicas */
+.btn-info {
+  @apply btn-ghost text-blue-600 hover:text-blue-700;
+  @apply hover:bg-blue-50;
+}
+
+.btn-edit {
+  @apply btn-ghost text-orange-600 hover:text-orange-700;
+  @apply hover:bg-orange-50;
+}
+
+.btn-delete {
+  @apply btn-ghost text-red-600 hover:text-red-700;
+  @apply hover:bg-red-50;
+}
+
+/* Botão com ícone */
+.btn-icon {
+  @apply text-gray-700 bg-white;
+  @apply hover:bg-gray-50 border border-gray-300;
+  @apply hover:border-gray-400;
+  @apply px-3 py-2 rounded-lg transition-colors duration-200;
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+}
+
+/* Botões de navegação */
+.btn-nav {
+  @apply inline-flex items-center justify-center px-3 py-2 text-sm font-medium;
+  @apply text-gray-700 bg-white;
+  @apply hover:bg-gray-50 border border-gray-300;
+  @apply hover:border-gray-400;
+  @apply transition-all duration-200 ease-in-out;
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+  @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  @apply transform hover:scale-[1.02] active:scale-[0.98];
+}
+
+.btn-nav:first-child {
+  @apply rounded-l-md;
+}
+
+.btn-nav:last-child {
+  @apply rounded-r-md;
+}
+
+.btn-nav:not(:first-child):not(:last-child) {
+  @apply rounded-none;
+}
+
+.btn-nav:only-child {
+  @apply rounded-md;
 }
 
 /* Estados especiais */
-.btn-active {
-  @apply bg-blue-600 text-white border-blue-600;
-}
-
 .btn-loading {
-  @apply opacity-75 cursor-wait;
+  @apply relative text-transparent;
 }
 
-/* Responsividade */
-@media (max-width: 640px) {
-  .btn-responsive {
-    @apply px-3 py-2 text-xs;
-  }
-  
-  .btn-responsive .btn-text {
-    @apply hidden;
-  }
+.btn-loading::after {
+  content: '';
+  @apply absolute inset-0 flex items-center justify-center;
+  @apply w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin;
+  @apply text-current;
 }

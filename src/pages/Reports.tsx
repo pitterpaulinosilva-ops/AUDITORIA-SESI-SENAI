@@ -54,70 +54,113 @@ const quickStats = [
   { label: 'Agendamentos', value: 12 }
 ];
 
-export function Reports() {
+const Reports: React.FC = () => {
   const navigate = useNavigate();
 
-  const handleCardClick = (href: string) => {
-    navigate(href);
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center mb-2">
-            <Activity className="h-8 w-8 text-blue-600 mr-3" />
-            <h1 className="text-3xl font-bold text-gray-900">Módulo de Relatórios</h1>
-          </div>
-          <p className="text-gray-600">Análises e insights do sistema de auditoria</p>
-        </div>
+    <div className="p-6">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          Relatórios e Analytics
+        </h1>
+        <p className="text-gray-600">
+          Acesse relatórios detalhados e análises de performance do sistema de auditoria
+        </p>
+      </div>
 
-        {/* Navigation Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {navigationItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <div
-                key={item.name}
-                onClick={() => handleCardClick(item.href)}
-                className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md hover:border-blue-300 transition-all duration-200 cursor-pointer group"
-              >
-                <div className="flex items-start space-x-4">
-                  <div className="flex-shrink-0">
-                    <Icon className="h-6 w-6 text-blue-600 group-hover:text-blue-700" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-700 transition-colors">
-                      {item.name}
-                    </h3>
-                    <p className="text-sm text-gray-600 mt-1">
-                      {item.description}
-                    </p>
-                  </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {navigationItems.map((item) => {
+          const IconComponent = item.icon;
+          return (
+            <div
+              key={item.name}
+              onClick={() => navigate(item.href)}
+              className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-lg transition-all duration-200 cursor-pointer group hover:border-primary-300"
+            >
+              <div className="flex items-center mb-4">
+                <div className="p-3 bg-primary-100 rounded-lg group-hover:bg-primary-200 transition-colors">
+                  <IconComponent className="h-6 w-6 text-primary-600" />
                 </div>
+                <h3 className="ml-4 text-lg font-semibold text-gray-900 group-hover:text-primary-700">
+                  {item.name}
+                </h3>
               </div>
-            );
-          })}
-        </div>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                {item.description}
+              </p>
+            </div>
+          );
+        })}
+      </div>
 
-        {/* Quick Statistics Card */}
+      {/* Seção de estatísticas rápidas */}
+      <div className="mt-12 grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Estatísticas Rápidas</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {quickStats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-2xl font-bold text-gray-900 mb-1">
-                  {stat.value}
-                </div>
-                <div className="text-sm text-gray-600">
-                  {stat.label}
-                </div>
-              </div>
-            ))}
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Total de Auditorias</p>
+              <p className="text-2xl font-bold text-gray-900">127</p>
+            </div>
+            <div className="p-3 bg-blue-100 rounded-lg">
+              <FileBarChart className="h-6 w-6 text-blue-600" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <span className="text-sm text-green-600 font-medium">+12%</span>
+            <span className="text-sm text-gray-600 ml-1">vs mês anterior</span>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Não Conformidades</p>
+              <p className="text-2xl font-bold text-gray-900">23</p>
+            </div>
+            <div className="p-3 bg-red-100 rounded-lg">
+              <ShieldAlert className="h-6 w-6 text-red-600" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <span className="text-sm text-red-600 font-medium">-8%</span>
+            <span className="text-sm text-gray-600 ml-1">vs mês anterior</span>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Taxa de Conformidade</p>
+              <p className="text-2xl font-bold text-gray-900">94.2%</p>
+            </div>
+            <div className="p-3 bg-green-100 rounded-lg">
+              <TrendingUp className="h-6 w-6 text-green-600" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <span className="text-sm text-green-600 font-medium">+3.1%</span>
+            <span className="text-sm text-gray-600 ml-1">vs mês anterior</span>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Tempo Médio</p>
+              <p className="text-2xl font-bold text-gray-900">2.4h</p>
+            </div>
+            <div className="p-3 bg-yellow-100 rounded-lg">
+              <Activity className="h-6 w-6 text-yellow-600" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <span className="text-sm text-green-600 font-medium">-15min</span>
+            <span className="text-sm text-gray-600 ml-1">vs mês anterior</span>
           </div>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default Reports;

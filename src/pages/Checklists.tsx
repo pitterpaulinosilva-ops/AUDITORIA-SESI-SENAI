@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Plus, 
   Search, 
   Filter, 
   Eye, 
@@ -14,12 +13,14 @@ import {
   UserCheck,
   Tag,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Plus
 } from 'lucide-react';
 import { useAuditProStore } from '../store';
 import { Checklist } from '../types';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+
 
 const ChecklistsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -38,6 +39,7 @@ const ChecklistsPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [showFilters, setShowFilters] = useState(false);
+
 
   // Filtrar checklists
   const filteredChecklists = useMemo(() => {
@@ -104,21 +106,16 @@ const ChecklistsPage: React.FC = () => {
   return (
     <div className="p-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+      <div className="mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Checklists</h1>
           <p className="text-gray-600 mt-1">
             Gerencie os checklists de auditoria
           </p>
         </div>
-        <button
-          onClick={() => navigate('/checklists/new')}
-          className="btn-primary"
-        >
-          <Plus className="w-4 h-4" />
-          Novo Checklist
-        </button>
       </div>
+
+
 
       {/* Filtros */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
@@ -141,7 +138,7 @@ const ChecklistsPage: React.FC = () => {
             {/* Botão de filtros */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="btn-secondary"
+              className="btn btn-default"
             >
               <Filter className="w-4 h-4" />
               Filtros

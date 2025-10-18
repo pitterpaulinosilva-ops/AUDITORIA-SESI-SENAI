@@ -1,4 +1,4 @@
-import { X, Calendar, User, Clock, FileText } from 'lucide-react';
+import { X, Calendar, User, Clock, FileText, Play, Eye } from 'lucide-react';
 import type { Audit } from '@/types';
 import { AuditStatus } from '@/types';
 import { AuditIndicator } from './AuditIndicator';
@@ -10,6 +10,7 @@ interface AuditModalProps {
   audits: Audit[];
   onOpenAudit: (auditId: string) => void;
   onCreateAudit: (date: Date) => void;
+  onExecuteAudit: (auditId: string) => void;
 }
 
 export function AuditModal({ 
@@ -18,7 +19,8 @@ export function AuditModal({
   date, 
   audits, 
   onOpenAudit, 
-  onCreateAudit 
+  onCreateAudit,
+  onExecuteAudit 
 }: AuditModalProps) {
   if (!isOpen) return null;
 
@@ -51,6 +53,10 @@ export function AuditModal({
   const handleCreateAudit = () => {
     onCreateAudit(date);
     onClose();
+  };
+
+  const canExecuteAudit = (audit: Audit) => {
+    return audit.status === AuditStatus.PLANNED || audit.status === AuditStatus.IN_PROGRESS;
   };
 
   return (
@@ -119,15 +125,32 @@ export function AuditModal({
                       </div>
                     </div>
 
-                    <button
-                      onClick={() => {
-                        onOpenAudit(audit.id);
-                        onClose();
-                      }}
-                      className="mt-3 w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-                    >
-                      Abrir Auditoria
-                    </button>
+                    <div className="mt-3 flex gap-2">
+                      <button
+                        onClick={() => {
+                          onOpenAudit(audit.id);
+                          onClose();
+                        }}
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+                      >
+                        <Eye className="w-4 h-4" />
+                        Ver Detalhes
+                      </button>
+                      
+                      {canExecuteAudit(audit) && (
+                        <button
+                          onClick={() => {
+                            onExecuteAudit(audit.id);
+                            onClose();
+                          }}
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
+                          title="Executar Auditoria"
+                        >
+                          <Play className="w-4 h-4" />
+                          Executar
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>

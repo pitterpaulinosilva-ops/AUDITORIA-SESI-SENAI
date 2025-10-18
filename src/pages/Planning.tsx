@@ -1,14 +1,15 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Download, Plus, Calendar, TrendingUp, Clock, CheckCircle } from 'lucide-react';
+import { Download, Plus, Calendar, TrendingUp, Clock, CheckCircle, User } from 'lucide-react';
 import { useAuditStore } from '../store';
 import { PlanningCalendar } from '../components/planning/PlanningCalendar';
 import { CalendarLegend } from '../components/planning/CalendarLegend';
-import { PlanningFilters, type PlanningFilters as PlanningFiltersType } from '../components/planning/PlanningFilters';
+import { PlanningFilters } from '../components/planning/PlanningFilters';
 import { CalendarViewToggle, type CalendarView } from '../components/planning/CalendarViewToggle';
 import { WeekView } from '../components/planning/WeekView';
 import { ListView } from '../components/planning/ListView';
 import { AuditModal } from '../components/planning/AuditModal';
+import { AuditorDashboard } from '../components/planning/AuditorDashboard';
 import type { Audit } from '@/types';
 import { AuditStatus } from '@/types';
 import { format } from 'date-fns';
@@ -21,44 +22,20 @@ export function Planning() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedAudits, setSelectedAudits] = useState<Audit[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentView, setCurrentView] = useState<CalendarView>('month');
-  const [filters, setFilters] = useState<PlanningFiltersType>({
-    status: [],
-    type: [],
-    auditor: [],
-    dateRange: { start: null, end: null }
-  });
+  const [currentView, setCurrentView] = useState<CalendarView>('auditor'); // Iniciar com dashboard do auditor
+
   const [searchTerm, setSearchTerm] = useState('');
+  const [showMyAuditsOnly, setShowMyAuditsOnly] = useState(false);
+  
+  // Simulação do auditor logado - em produção viria do contexto de autenticação
+  const currentAuditor = "João Silva";
 
   // Filtrar auditorias baseado nos filtros aplicados
   const filteredAudits = useMemo(() => {
     return audits.filter(audit => {
-      // Filtro por status
-      if (filters.status.length > 0 && !filters.status.includes(audit.status)) {
+      // Filtro "Minhas Auditorias" - prioridade máxima
+      if (showMyAuditsOnly && audit.auditor !== currentAuditor) {
         return false;
-      }
-
-      // Filtro por tipo
-      if (filters.type.length > 0 && !filters.type.includes(audit.type as any)) {
-        return false;
-      }
-
-      // Filtro por auditor
-      if (filters.auditor.length > 0 && !filters.auditor.includes(audit.auditor)) {
-        return false;
-      }
-
-      // Filtro por período
-      if (filters.dateRange.start || filters.dateRange.end) {
-        const auditDate = audit.scheduledDate ? new Date(audit.scheduledDate) : null;
-        if (!auditDate) return false;
-        
-        if (filters.dateRange.start && auditDate < filters.dateRange.start) {
-          return false;
-        }
-        if (filters.dateRange.end && auditDate > filters.dateRange.end) {
-          return false;
-        }
       }
 
       // Filtro por busca
@@ -73,7 +50,7 @@ export function Planning() {
 
       return true;
     });
-  }, [audits, filters, searchTerm]);
+  }, [audits, searchTerm, showMyAuditsOnly, currentAuditor]);
 
   // Estatísticas das auditorias
   const stats = useMemo(() => {
@@ -113,6 +90,42 @@ export function Planning() {
     setIsModalOpen(false);
   };
 
+  const handleExecuteAudit = (auditId: string) => {
+    // Validar se a auditoria pode ser executada
+    const audit = audits.find(a => a.id === auditId);
+    if (!audit) {
+      console.error('Auditoria não encontrada');
+      return;
+    }
+
+    // Verificar se o status permite execução
+    if (audit.status !== AuditStatus.PLANNED && audit.status !== AuditStatus.IN_PROGRESS) {
+      console.error('Auditoria não pode ser executada no status atual:', audit.status);
+      return;
+    }
+
+    // Verificar se existe checklist associado
+    if (!audit.checklistId) {
+      console.warn('Auditoria sem checklist associado');
+      // Ainda permite execução, mas com aviso
+    }
+
+    // Verificar se a data de execução é apropriada
+    if (audit.scheduledDate) {
+      const scheduledDate = new Date(audit.scheduledDate);
+      const today = new Date();
+      const diffInDays = Math.ceil((scheduledDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      
+      if (diffInDays > 7) {
+        console.warn('Executando auditoria com mais de 7 dias de antecedência');
+      }
+    }
+
+    // Navegar para a página de execução
+    navigate(`/audits/${auditId}/execute`);
+    setIsModalOpen(false);
+  };
+
   const handleExport = () => {
     // Implementar exportação do cronograma
     console.log('Exportando cronograma...');
@@ -129,102 +142,59 @@ export function Planning() {
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Planejamento</h1>
+              <h1 className="text-3xl font-bold text-gray-900">Execução de Auditoria</h1>
               <p className="mt-2 text-gray-600">
-                Gerencie o cronograma de auditorias e acompanhe o progresso
+                Visualize e execute suas auditorias programadas
               </p>
             </div>
             
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleExport}
-                className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                <Download className="w-4 h-4" />
-                <span className="hidden sm:inline">Exportar</span>
-              </button>
-              
-              <button
-                onClick={() => navigate('/audits/new')}
-                className="btn-primary"
-              >
-                <Plus className="w-4 h-4" />
-                <span className="hidden sm:inline">Nova Auditoria</span>
-              </button>
-            </div>
+
           </div>
 
-          {/* Estatísticas rápidas */}
-          <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="bg-white p-4 rounded-lg border border-gray-200">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-orange-100 rounded-lg">
-                  <Calendar className="w-5 h-5 text-orange-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Programadas</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.scheduled}</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white p-4 rounded-lg border border-gray-200">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Clock className="w-5 h-5 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Em Andamento</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.inProgress}</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white p-4 rounded-lg border border-gray-200">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Concluídas</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.completed}</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white p-4 rounded-lg border border-gray-200">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-100 rounded-lg">
-                  <TrendingUp className="w-5 h-5 text-gray-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Total</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-                </div>
-              </div>
-            </div>
-          </div>
+
         </div>
 
         {/* Filtros */}
         <div className="mb-6">
           <PlanningFilters
-            onFiltersChange={setFilters}
             onSearchChange={setSearchTerm}
           />
         </div>
 
         {/* Controles de visualização */}
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <CalendarViewToggle
-            currentView={currentView}
-            onViewChange={setCurrentView}
-          />
+          <div className="flex items-center gap-4">
+            <CalendarViewToggle
+              currentView={currentView}
+              onViewChange={setCurrentView}
+            />
+            
+            {/* Filtro rápido "Minhas Auditorias" */}
+            <button
+              onClick={() => setShowMyAuditsOnly(!showMyAuditsOnly)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+                showMyAuditsOnly
+                  ? 'bg-blue-50 border-blue-200 text-blue-700'
+                  : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              <User className="w-4 h-4" />
+              Minhas Auditorias
+            </button>
+          </div>
           
           {currentView === 'month' && <CalendarLegend />}
         </div>
 
         {/* Visualizações */}
+        {currentView === 'auditor' && (
+          <AuditorDashboard
+            onAuditClick={handleAuditClick}
+            onExecuteAudit={handleExecuteAudit}
+            currentAuditor={currentAuditor}
+          />
+        )}
+
         {currentView === 'month' && (
           <PlanningCalendar
             audits={filteredAudits}
@@ -244,6 +214,7 @@ export function Planning() {
           <ListView
             audits={filteredAudits}
             onAuditClick={handleAuditClick}
+            onExecuteAudit={handleExecuteAudit}
           />
         )}
 
@@ -255,6 +226,7 @@ export function Planning() {
           audits={selectedAudits}
           onOpenAudit={handleOpenAudit}
           onCreateAudit={handleCreateAudit}
+          onExecuteAudit={handleExecuteAudit}
         />
       </div>
     </div>

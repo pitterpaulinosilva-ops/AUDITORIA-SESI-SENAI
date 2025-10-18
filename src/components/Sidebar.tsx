@@ -21,49 +21,49 @@ const navigationItems = [
     href: '/', 
     icon: Gauge,
     description: 'Visão geral e KPIs',
-    color: 'blue'
+    color: 'primary'
   },
   { 
     name: 'Auditorias', 
     href: '/audits', 
     icon: Shield,
     description: 'Gestão de auditorias',
-    color: 'emerald'
+    color: 'success'
   },
   { 
     name: 'Checklists', 
     href: '/checklists', 
     icon: ListChecks,
     description: 'Editor de checklists',
-    color: 'purple'
+    color: 'secondary'
   },
   { 
     name: 'Não Conformidades', 
     href: '/non-conformities', 
     icon: AlertOctagon,
     description: 'Gestão de NCs',
-    color: 'orange'
+    color: 'warning'
   },
   { 
-    name: 'Planejamento', 
+    name: 'Execução de Auditoria', 
     href: '/planning', 
     icon: Calendar,
-    description: 'Calendário e eventos',
-    color: 'indigo'
+    description: 'Execução de auditorias',
+    color: 'info'
   },
   { 
     name: 'Relatórios', 
     href: '/reports', 
     icon: BarChart3,
     description: 'Geração de relatórios',
-    color: 'teal'
+    color: 'accent'
   },
   { 
     name: 'Configurações', 
     href: '/settings', 
     icon: Cog,
     description: 'Configurações do sistema',
-    color: 'gray'
+    color: 'neutral'
   }
 ];
 
@@ -82,79 +82,79 @@ export function Sidebar() {
     <>
       {/* Sidebar - Unified for all devices */}
       <div className={`
-        fixed top-0 left-0 h-full w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 z-50
+        fixed top-0 left-0 h-full w-72 bg-theme-primary backdrop-blur-md border-r border-theme-primary transform transition-all duration-300 z-50 shadow-theme-xl flex flex-col
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <div className="flex items-center justify-between p-6 border-b border-theme-primary bg-theme-secondary flex-shrink-0">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden bg-white shadow-sm border border-gray-100">
-              <img 
-                src="/logo.png" 
-                alt="Audita Pro Logo" 
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden bg-gradient-to-r from-primary-600 to-primary-700 shadow-glow-primary">
+              <img
+                src="/sesi-senai-logo.png"
+                alt="SESI/SENAI Logo"
                 className="w-6 h-6 object-contain"
               />
             </div>
             <div>
-              <h1 className="text-lg font-semibold text-gray-900">Audita Pro</h1>
-              <p className="text-xs text-gray-500">Sistema de Auditoria</p>
+              <h1 className="text-lg font-bold text-theme-primary">AuditPro</h1>
+              <p className="text-xs text-theme-tertiary font-medium">Sistema de Auditoria</p>
             </div>
           </div>
           
           <button
             onClick={toggleSidebar}
-            className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+            className="p-2 rounded-xl hover:bg-theme-tertiary transition-all duration-300 hover:scale-105 active:scale-95 hover:shadow-theme-md backdrop-blur-sm"
           >
-            <X className="w-5 h-5 text-gray-600" />
+            <X className="w-5 h-5 text-theme-secondary" />
           </button>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-2">
+        {/* Navigation - Scrollable */}
+        <nav className="flex-1 p-6 space-y-3 overflow-y-auto scrollbar-thin scrollbar-thumb-theme-tertiary scrollbar-track-transparent hover:scrollbar-thumb-theme-secondary max-h-[calc(100vh-200px)]">
           {navigationItems.map((item) => {
             const isActive = location.pathname === item.href;
             const Icon = item.icon;
             
-            // Função para obter as classes de cor baseadas no estado e cor do item (mobile)
+            // Função para obter as classes de cor baseadas no estado e cor do item
             const getColorClasses = () => {
               if (isActive) {
                 switch (item.color) {
-                  case 'blue': return 'bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 border border-blue-200 shadow-sm';
-                  case 'emerald': return 'bg-gradient-to-r from-emerald-50 to-emerald-100 text-emerald-700 border border-emerald-200 shadow-sm';
-                  case 'purple': return 'bg-gradient-to-r from-purple-50 to-purple-100 text-purple-700 border border-purple-200 shadow-sm';
-                  case 'orange': return 'bg-gradient-to-r from-orange-50 to-orange-100 text-orange-700 border border-orange-200 shadow-sm';
-                  case 'indigo': return 'bg-gradient-to-r from-indigo-50 to-indigo-100 text-indigo-700 border border-indigo-200 shadow-sm';
-                  case 'teal': return 'bg-gradient-to-r from-teal-50 to-teal-100 text-teal-700 border border-teal-200 shadow-sm';
-                  case 'gray': return 'bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 border border-gray-200 shadow-sm';
-                  default: return 'bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 border border-blue-200 shadow-sm';
+                  case 'primary': return 'bg-gradient-to-r from-primary-50 to-primary-100 text-primary-700 border border-primary-200 shadow-glow-primary/30';
+                  case 'success': return 'bg-gradient-to-r from-success-50 to-success-100 text-success-700 border border-success-200 shadow-glow-success/30';
+                  case 'secondary': return 'bg-gradient-to-r from-secondary-50 to-secondary-100 text-secondary-700 border border-secondary-200 shadow-glow-secondary/30';
+                  case 'warning': return 'bg-gradient-to-r from-warning-50 to-warning-100 text-warning-700 border border-warning-200 shadow-glow-warning/30';
+                  case 'info': return 'bg-gradient-to-r from-info-50 to-info-100 text-info-700 border border-info-200 shadow-glow-info/30';
+                  case 'accent': return 'bg-gradient-to-r from-accent-50 to-accent-100 text-accent-700 border border-accent-200 shadow-glow-accent/30';
+                  case 'neutral': return 'bg-gradient-to-r from-neutral-50 to-neutral-100 text-neutral-700 border border-neutral-200 shadow-glow-neutral/30';
+                  default: return 'bg-gradient-to-r from-primary-50 to-primary-100 text-primary-700 border border-primary-200 shadow-glow-primary/30';
                 }
               }
-              return 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 hover:shadow-sm';
+              return 'text-theme-secondary hover:bg-theme-secondary hover:text-theme-primary hover:shadow-theme-md backdrop-blur-sm border border-transparent hover:border-theme-primary';
             };
 
             const getIconColorClasses = () => {
               if (isActive) {
                 switch (item.color) {
-                  case 'blue': return 'text-blue-600';
-                  case 'emerald': return 'text-emerald-600';
-                  case 'purple': return 'text-purple-600';
-                  case 'orange': return 'text-orange-600';
-                  case 'indigo': return 'text-indigo-600';
-                  case 'teal': return 'text-teal-600';
-                  case 'gray': return 'text-gray-600';
-                  default: return 'text-blue-600';
+                  case 'primary': return 'text-primary-600';
+                  case 'success': return 'text-success-600';
+                  case 'secondary': return 'text-secondary-600';
+                  case 'warning': return 'text-warning-600';
+                  case 'info': return 'text-info-600';
+                  case 'accent': return 'text-accent-600';
+                  case 'neutral': return 'text-neutral-600';
+                  default: return 'text-primary-600';
                 }
               } else {
                 // Cores suaves para ícones inativos
                 switch (item.color) {
-                  case 'blue': return 'text-blue-500 hover:text-blue-600';
-                  case 'emerald': return 'text-emerald-500 hover:text-emerald-600';
-                  case 'purple': return 'text-purple-500 hover:text-purple-600';
-                  case 'orange': return 'text-orange-500 hover:text-orange-600';
-                  case 'indigo': return 'text-indigo-500 hover:text-indigo-600';
-                  case 'teal': return 'text-teal-500 hover:text-teal-600';
-                  case 'gray': return 'text-gray-500 hover:text-gray-600';
-                  default: return 'text-blue-500 hover:text-blue-600';
+                  case 'primary': return 'text-primary-500 hover:text-primary-600';
+                  case 'success': return 'text-success-500 hover:text-success-600';
+                  case 'secondary': return 'text-secondary-500 hover:text-secondary-600';
+                  case 'warning': return 'text-warning-500 hover:text-warning-600';
+                  case 'info': return 'text-info-500 hover:text-info-600';
+                  case 'accent': return 'text-accent-500 hover:text-accent-600';
+                  case 'neutral': return 'text-neutral-500 hover:text-neutral-600';
+                  default: return 'text-primary-500 hover:text-primary-600';
                 }
               }
             };
@@ -164,14 +164,14 @@ export function Sidebar() {
                 key={item.name}
                 onClick={() => handleNavigation(item.href)}
                 className={`
-                  flex items-center space-x-3 px-3 py-3 rounded-xl transition-all duration-300 w-full text-left
+                  flex items-center space-x-4 px-4 py-4 rounded-xl transition-all duration-300 w-full text-left hover:scale-[1.02] active:scale-[0.98]
                   ${getColorClasses()}
                 `}
               >
-                <Icon className={`w-5.5 h-5.5 ${getIconColorClasses()} transition-all duration-300`} />
+                <Icon className={`w-6 h-6 ${getIconColorClasses()} transition-all duration-300`} />
                 <div className="flex-1 min-w-0">
-                  <div className="font-medium text-sm">{item.name}</div>
-                  <div className="text-xs text-gray-500 truncate">{item.description}</div>
+                  <div className="font-semibold text-sm">{item.name}</div>
+                  <div className="text-xs text-theme-tertiary truncate mt-0.5">{item.description}</div>
                 </div>
               </button>
             );
@@ -179,13 +179,21 @@ export function Sidebar() {
         </nav>
 
         {/* Footer */}
-        <div className="p-4 border-t border-gray-200">
-          <div className="text-xs text-gray-500">
-            <div className="font-medium">AuditPro v1.0</div>
-            <div>Sistema de Auditoria</div>
+        <div className="p-6 border-t border-theme-primary bg-theme-secondary flex-shrink-0">
+          <div className="text-xs text-theme-tertiary">
+            <div className="font-semibold text-theme-secondary">AuditPro v1.0</div>
+            <div className="mt-1">Sistema de Auditoria SESI/SENAI</div>
           </div>
         </div>
       </div>
+
+      {/* Overlay for mobile */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 transition-opacity duration-300"
+          onClick={toggleSidebar}
+        />
+      )}
     </>
   );
 }

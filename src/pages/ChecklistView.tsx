@@ -527,3 +527,5 @@ const ChecklistView: React.FC = () => {
 };
 
 export default ChecklistView;
+
+// ...existing code ...
